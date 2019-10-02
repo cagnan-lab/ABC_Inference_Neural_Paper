@@ -161,4 +161,7 @@ r = [];
             end
         end
         r2mean = mean(r2loop);
+    case 'none'
+        r2mean = NaN;
+        
 end

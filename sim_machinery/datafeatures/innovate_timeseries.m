@@ -37,6 +37,12 @@ for condsel = 1:numel(R.condnames)
             u = u';
         case 'zero'
             u= zeros(m.m,R.IntP.nt)';
+        case 'white+beta'
+            u = (sqrtm(m.uset.p.covar)*randn(m.m,R.IntP.nt)).*m.uset.p.scale;
+            tx = makeTremorSignal(R,[20 50],[1 5]);
+            tx = 0.1.*tx;
+            u(2,:) = tx;
+            u = u';
     end
     u = u.*sqrt(R.IntP.dt);
     uc{condsel} = u;

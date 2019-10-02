@@ -1,4 +1,4 @@
-function [F meannpd wflag meanconf] = constructNPDMat_190618(dataS,chloc_name,chlist,fsamp,N,R)
+function [F meannpd wflag meanconf] = constructNPDMat_011019(dataS,chloc_name,chlist,fsamp,N,R)
 if isempty(N)
     N = floor(fsamp/R.obs.csd.df);
 end
@@ -12,6 +12,8 @@ end
 wflag = 0;
 % N = R.obs.csd.pow2;
 F_scale = R.frqz;
+
+
 % Construct NPD matrix from data - take mean across channel replicates
 for chloc = 1:size(chloc_name,2)
     chinds{chloc} = strmatch(chloc_name{chloc},chlist);
@@ -26,27 +28,26 @@ for C = 1:O
                     chindsR = chinds{chJ};
                     if chI == chJ
                         [Pxy,F] = pwelch(squeeze(data(C,chindsP(p),:)),hanning(2^N),[],2^(N),fsamp);
-                        Pxy = Pxy; %.*welchwin(length(Pxy))';
-%                         Pxy = -(log10(Pxy));
-                        Pxy = -abs(log10(Pxy));
-                        Pxy(F>48 & F<52) = [];
-                        F(F>48 & F<52) = [];
-                        Pxy(F==0) = [];
-                        F(F==0) = [];
-                        if R.obs.trans.logdetrend == 1
-                            [xCalc yCalc b Rsq] = linregress(log10(F),Pxy);
-                            Pxy = Pxy-yCalc;
-                        end
+                        
                         if nargin>5
                             Pxy = interp1(F,Pxy,F_scale);
                         else
                             Pxy =  Pxy(F>4);
                         end
+                        if R.obs.trans.logdetrend == 1
+                            Pxy = log10(Pxy); F_scale = log10(F_scale);
+                            [xCalc yCalc b Rsq] = linregress(F_scale',Pxy');
+                            [dum bi] = intersect(F_scale,xCalc);
+                            Pxy = Pxy(1,bi)-yCalc';
+                            Pxy = 10.^Pxy; F_scale = 10.^(F_scale(bi));
+                        else
+                            Pxy(isnan(F_scale)) = [];
+                            F_scale(isnan(F_scale)) = [];
+                        end
+                        
                         
                         if R.obs.logscale == 1
-                            Pxy = Pxy;
-                        else
-                            Pxy = 10.^Pxy;
+                            Pxy = log10(Pxy);
                         end
                         if R.obs.trans.norm == 1
                             Pxy = (Pxy-nanmean(Pxy))./nanstd(Pxy);
@@ -63,7 +64,7 @@ for C = 1:O
                         xconf(p,r,1:3) = [0 0 0];
                         
                     else
-                        [f13,t,cl]=sp2a2_R2(squeeze(data(C,chindsP(p),:)),squeeze(data(C,chindsR(r),:)),fsamp,N);
+                        [f13,t,cl]=sp2a2_R2(squeeze(data(C,chindsP(p),:)),squeeze(data(C,chindsR(r),:)),fsamp,N-1);
                         if any(any(isnan(f13(:,12))))
                             warning('NPD is returning nans!!')
                             wflag = 1;
@@ -88,7 +89,7 @@ for C = 1:O
                             end                            %                         Pxy = Pxy./max(nPxy);
                             %                             Pxy = Pxy; %.*welchwin(length(Pxy))';
                             %                             Pxy = Pxy.*tukeywin(length(Pxy),0.1)';
-                            xcsd(p,r,z,:) = Pxy;
+                            xcsd(p,r,z,:) = Pxy;%.*20;
                             xconf(p,r,z) = cl.ch_c95;
                         end
                     end

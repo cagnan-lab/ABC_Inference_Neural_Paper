@@ -255,27 +255,27 @@ while ii <= R.SimAn.searchMax
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-        %         figure(4)
-        %         tvec_obs = R.IntP.tvec;
-        %         tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
-        %         R.IntP.tvec_obs = tvec_obs;
-        %         ptr(1) = subplot(2,1,1);
-        %         try
-        %             plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
-        %             xlabel('Time (s)'); ylabel('Amplitude')
-        %             if numel(xsims_rep{Ilist(1)})>1
-        %                 ptr(2) = subplot(2,1,2);
-        %                 plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{2},1),1)',xsims_rep{Ilist(1)}{2}'); %xlim([15 20])
-        %                 linkaxes(ptr,'x'); %xlim([10 20])
-        %             else
-        %                 ptr(2) = subplot(2,1,2);
-        %                 plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
-        %                 xlim  ([8 10])
-        %             end
-        %             xlabel('Time (s)'); ylabel('Amplitude')
-        %             legend(R.chsim_name)
-        %             drawnow;shg
-        %         end
+%                 figure(4)
+%                 tvec_obs = R.IntP.tvec;
+%                 tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
+%                 R.IntP.tvec_obs = tvec_obs;
+%                 ptr(1) = subplot(2,1,1);
+%                 try
+%                     plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
+%                     xlabel('Time (s)'); ylabel('Amplitude')
+%                     if numel(xsims_rep{Ilist(1)})>1
+%                         ptr(2) = subplot(2,1,2);
+%                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{2},1),1)',xsims_rep{Ilist(1)}{2}'); %xlim([15 20])
+%                         linkaxes(ptr,'x'); %xlim([10 20])
+%                     else
+%                         ptr(2) = subplot(2,1,2);
+%                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
+%                         xlim  ([8 10])
+%                     end
+%                     xlabel('Time (s)'); ylabel('Amplitude')
+%                     legend(R.chsim_name)
+%                     drawnow;shg
+%                 end
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')
@@ -295,7 +295,7 @@ while ii <= R.SimAn.searchMax
     %     assignin('base','R_out',R)
     deltaPrec(ii) = mean(diff(parPrec(:,[ii ii+1]),[],2));
     
-    if abs(delta_act) < R.SimAn.convIt
+    if (abs(delta_act) < R.SimAn.convIt) && (delta_act~=0) 
         disp('Itry Exceeded: Convergence')
         saveSimABCOutputs(R,Mfit,m,parBank)
         if R.plot.flag == 1

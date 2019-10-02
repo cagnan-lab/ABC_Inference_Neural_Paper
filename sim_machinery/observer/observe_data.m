@@ -22,6 +22,9 @@ for condsel = 1:numel(R.condnames)
     
     for i = 1:length(R.obs.gainmeth)
         switch R.obs.gainmeth{i}
+            case 'obsnoise'
+                CN = (R.obs.Cnoise.*exp(p.obs.Cnoise))';
+                xsims = xsims + CN.*randn(size(xsims));
             case 'leadfield'
                 LF = R.obs.LF.*exp(p.obs.LF);
                 LFF = zeros(m.m);

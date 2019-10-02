@@ -42,8 +42,10 @@ addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\ABC
 addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
 addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\data']));
 addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\model_fx']));
+addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\ModelSpecs']));
 addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\priors']));
 addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\routine\' routname]))
 
 
 R.root = ['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\'];
+R.projectn = projname;
