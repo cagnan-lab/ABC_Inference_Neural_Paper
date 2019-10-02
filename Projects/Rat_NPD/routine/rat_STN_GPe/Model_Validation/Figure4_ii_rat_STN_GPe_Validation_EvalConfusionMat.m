@@ -33,7 +33,7 @@ R.data = RSimData.data;
 % results = fetchOutputs(j);
 % delete(j);
 
-modelCompMaster(R,1:9,[])
+% modelCompMaster(R,1:9,[])
 % modelCompMaster(R,2,[1 3])
 
 %% Plot the modComp results

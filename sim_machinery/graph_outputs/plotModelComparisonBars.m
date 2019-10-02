@@ -6,6 +6,9 @@ if type == 1 % model probs
 elseif type == 2 % KL divergences
     F = compStruc.KL;
     yl = 'KL Divergence';
+    elseif type == 3 % ACS
+    F = compStruc.ACS;
+    yl = 'ACS Combined Score';
 end
 
 for i = 1:numel(R.modcomp.modN)
