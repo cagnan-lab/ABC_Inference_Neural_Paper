@@ -31,7 +31,7 @@ catch
 end
 N = 10; % number of starts
 %% Prepare Model
-for multiStart = 1:2*N
+for multiStart = 11:2*N
     load([R.rootn 'outputs\' R.out.tag '\MultiStartList'],'WML')
     if ~any(intersect(WML,multiStart))
         WML = [WML multiStart];

@@ -29,7 +29,7 @@ for multiStart = convMods
     
 %     sc(i) = scatter(CMDscaled{multiStart}(1:3:end,1),CMDscaled{multiStart}(1:3:end,3),(15.^R2track{multiStart}(1:3:end))*250,cmap(multiStart,:),'.');
     hold on
-        p =     plot(CMDscaled{multiStart}(1:3:end,1),CMDscaled{multiStart}(1:3:end,3),'color',cmap(multiStart,:),'LineWidth',1.25);
+        p =     plot(CMDscaled{multiStart}(1:3:end,1),CMDscaled{multiStart}(1:3:end,2),'color',cmap(multiStart,:),'LineWidth',1.25);
 %     plotVarWidth(CMDscaled{multiStart}(1:3:end,1),CMDscaled{multiStart}(1:3:end,3),2.5.*(15.^R2track{multiStart}(1:3:end)'),cmap(multiStart,:),5)
 end
 xlabel('Scaling Dimension 1'); ylabel('Scaling Dimension 2');
