@@ -11,7 +11,6 @@ if ~isfield(R.obs,'logscale')
 end
 wflag = 0;
 % N = R.obs.csd.pow2;
-F_scale = R.frqz;
 
 
 % Construct NPD matrix from data - take mean across channel replicates
@@ -28,7 +27,8 @@ for C = 1:O
                     chindsR = chinds{chJ};
                     if chI == chJ
                         [Pxy,F] = pwelch(squeeze(data(C,chindsP(p),:)),hanning(2^N),[],2^(N),fsamp);
-                        
+                        F_scale = R.frqz;
+
                         if nargin>5
                             Pxy = interp1(F,Pxy,F_scale);
                         else
@@ -45,7 +45,6 @@ for C = 1:O
                             F_scale(isnan(F_scale)) = [];
                         end
                         
-                        
                         if R.obs.logscale == 1
                             Pxy = log10(Pxy);
                         end
@@ -53,10 +52,15 @@ for C = 1:O
                             Pxy = (Pxy-nanmean(Pxy))./nanstd(Pxy);
                             Pxy = Pxy - min(Pxy);
                         end
-                        if R.obs.trans.gauss == 1
+                        if R.obs.trans.gauss3 == 1
                             %                             Pxy = smoothdata(Pxy,'gaussian');
                             f = fit(F_scale',Pxy','gauss3');
                             Pxy = f(F_scale)';
+                        end
+                        
+                        if R.obs.trans.gausSm > 0
+                            gwid = R.obs.trans.gausSm/diff(F_scale(1:2)); % 10 Hz smoothing
+                            Pxy = smoothdata(Pxy,'gaussian',gwid);
                         end
                         Pxy(isnan(Pxy)) = 0;
                         Pxy = Pxy; %.*tukeywin(length(Pxy),0.25)';
@@ -65,6 +69,8 @@ for C = 1:O
                         
                     else
                         [f13,t,cl]=sp2a2_R2(squeeze(data(C,chindsP(p),:)),squeeze(data(C,chindsR(r),:)),fsamp,N-1);
+                        F_scale = R.frqz;
+                        F_scale(isnan(F_scale)) = [];
                         if any(any(isnan(f13(:,12))))
                             warning('NPD is returning nans!!')
                             wflag = 1;
@@ -82,14 +88,19 @@ for C = 1:O
                                 Pxy =  Pxy(F>4);
                             end
                             
-                            if R.obs.trans.gauss == 1
+                            if R.obs.trans.gauss3 == 1
                                 %                             Pxy = smoothdata(Pxy,'gaussian');
                                 f = fit(F_scale',Pxy','gauss3');
                                 Pxy = f(F_scale)';
-                            end                            %                         Pxy = Pxy./max(nPxy);
+                            end
+                        if R.obs.trans.gausSm > 0
+                            gwid = R.obs.trans.gausSm/diff(F_scale(1:2)); % 10 Hz smoothing
+                            Pxy = smoothdata(Pxy,'lowess',gwid);
+                        end
+                            %                         Pxy = Pxy./max(nPxy);
                             %                             Pxy = Pxy; %.*welchwin(length(Pxy))';
                             %                             Pxy = Pxy.*tukeywin(length(Pxy),0.1)';
-                            xcsd(p,r,z,:) = Pxy;%.*20;
+                            xcsd(p,r,z,:) = Pxy;
                             xconf(p,r,z) = cl.ch_c95;
                         end
                     end

@@ -1,6 +1,9 @@
 function  [hl, hp, dl,flag] = PlotFeatureConfInt_gen060818(R,permMod,fighan)
 if ~isfield(R.plot,'confint')
-    R.plot.confint = 0; % If not specified then dont plot confidence intervals
+    R.plot.confint = 1; % If not specified then dont plot confidence intervals
+end
+if ~isfield(R.plot,'cmap')
+    R.plot.cmap = linspecer(12);
 end
 CSD_data_n = permMod.feat_rep{1};
 % list = find([permMod.r2rep{:}]>-0.2,1)

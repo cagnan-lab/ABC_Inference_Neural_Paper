@@ -10,7 +10,7 @@ R.rootm = [R.root 'ABC_Inference_Neural_Paper\sim_machinery'];
 R.filepathn = [R.rootn 'data\storage'];
 R.data.datatype = 'NPD'; %%'NPD'
 R.frqz = [6:.2:98];
-R.frqz(R.frqz>48 & R.frqz<52) = NaN;
+R.frqz(R.frqz>47 & R.frqz<53) = NaN;
 R.frqz(R.frqz==0) = NaN;
 R.frqzfull = [1:.2:200]; % used for filters
 % R.chloc_name = {'Musc1'};
