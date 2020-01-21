@@ -59,8 +59,8 @@ for C = 1:O
                         end
                         Pxy(isnan(Pxy)) = 0;
                         Pxy = Pxy; %.*tukeywin(length(Pxy),0.25)';
-                        xcsd(p,r,1:3,:) = repmat(Pxy,3,1);
-                        xconf(p,r,1:3) = [0 0 0];
+                        xcsd(p,r,1:4,:) = repmat(Pxy,4,1);
+                        xconf(p,r,1:4) = [0 0 0 0];
                         
                     else
                         [f13,t,cl]=sp2a2_R2(squeeze(data(C,chindsP(p),:)),squeeze(data(C,chindsR(r),:)),fsamp,N);
@@ -70,8 +70,8 @@ for C = 1:O
                         end
                         %                     [nf13,~,~]=sp2a2_R2(normnoise(1,:)',normnoise(2,:)',fsamp,N-1);
                         F = f13(:,1);
-                        zl = [10 11 12];
-                        for z = 1:3
+                        zl = [10 11 12 8];
+                        for z = 1:4
                             %                     [Pxy,F] = cpsd(data(chindsP(p),:),data(chindsR(r),:),hanning(N),[],N,fsamp);
                             Pxy = f13(:,zl(z));
                             %                         nPxy = nf13(:,12);

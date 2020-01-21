@@ -1,4 +1,4 @@
-function [R p m uc] = MS_rat_InDrt_ModCompRev2_Model10(R)
+function [R p m uc] = MS_rat_InDrt_ModCompRevTest_Model10(R)
 %% Revised Model Space (12 MODELS) %%
 % Model 5.2
 %% MODEL 10 %%%
@@ -13,7 +13,8 @@ m.n =  size([m.x{:}],2); % Number of states
 for i = 1:numel(R.chsim_name)
     m.dipfit.model(i).source = R.chsim_name{i};
 end
-m.outstates = {[0 0 0 0 0 0 1 0]  [1 0]  [1 0]  [1 0]  [1 0]  [1 0]};
+m.outstates = {[0 0 1 0 0 0 0 0]  [1 0]  [1 0]  [1 0]  [1 0]  [1 0]};
+
 R.obs.outstates = find([m.outstates{:}]);
 for i=1:numel(R.chloc_name)
     R.obs.obsstates(i) = find(strcmp(R.chloc_name{i},R.chsim_name));

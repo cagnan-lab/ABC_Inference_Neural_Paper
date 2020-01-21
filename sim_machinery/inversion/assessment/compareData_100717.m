@@ -6,7 +6,7 @@ switch R.data.datatype
         NPDsim  = sim_dat; % simulated
         for i = 1:size(NPDemp,1)
             for j = 1:size(NPDemp,2)
-                switch R.objfx.feattype
+                switch R.objfx.feattype 
                     case 'complex'
                         if i~=j
                             yfx = (squeeze(imag(NPDsim(i,j,:))));
@@ -68,10 +68,10 @@ switch R.data.datatype
         NPDsim  = sim_dat; % simulated
         yfxx = [];
         ffxx = [];
-r = [];
+        r = [];
         for C = 1:numel(R.condnames)
-            for i = 1:numel(R.chloc_name)
-                for j = 1:numel(R.chloc_name)
+            for i = 1:size(NPDemp,2)
+                for j = 1:size(NPDemp,2)
                     switch R.objfx.feattype
                         case 'ForRev'
                             if i==j
@@ -124,7 +124,7 @@ r = [];
             case 'cross'
                 for C = 1:numel(R.condnames)
                     r2C = squeeze(r2loop(C,:,:));
-%                     r2mean(C) = nanmean(r2C(triu(r2C)~=0));
+                    %                     r2mean(C) = nanmean(r2C(triu(r2C)~=0));
                     r2mean(C) = nanmean(r2C(:));
                 end
                 %         r2mean = sum(r2loop(triu(r2loop)~=0));
