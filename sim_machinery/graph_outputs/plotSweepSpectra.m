@@ -4,8 +4,7 @@ if nargin<8
 end
 
 for i = condsel
-    
-    if max(squeeze(feat{i}(1,4,4,1,:)))<1e-8
+    if max(squeeze(feat{i}(1,4,4,1,:)))<1e-8; % If STN is over reasonable level
         a(i) = plot(Hz,squeeze(feat{i}(1,chsel(1),chsel(2),chsel(3),:)),'color',cmap(i,:),'LineWidth',2);
         %     a(i) = plot(Hz,squeeze(feat{i}(1,4,1,2,:)),'color',cmap(i,:),'LineWidth',2);
         hold on

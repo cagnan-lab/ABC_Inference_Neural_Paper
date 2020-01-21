@@ -39,7 +39,7 @@ catch
     disp('Making Mod List!!')
 end
 
-for modID = 12:-1:1
+for modID = 10;% 12:-1:1
     if modID>= 7
         R.obs.LF = [1 1 1 1 1 1].*10; % Fit visually and for normalised data
         R.chsim_name = {'MMC','STR','GPE','STN','GPI','THAL'};
@@ -56,10 +56,10 @@ for modID = 12:-1:1
         f = msgbox(sprintf('Fitting Model %.0f',modID));
         
         %% Prepare Model
-        modelspec = eval(['@MS_rat_InDrt_ModCompRev2_Model' num2str(modID)]);
+        modelspec = eval(['@MS_rat_InDrt_ModCompRevTest_Model' num2str(modID)]);
         [R p m uc] = modelspec(R); % M! intrinsics shrunk"
         pause(5)
-        R.out.dag = sprintf('NPD_InDrt_ModCompRev2_M%.0f',modID); % 'All Cross'
+        R.out.dag = sprintf('NPD_InDrt_ModCompRevTest_M%.0f',modID); % 'All Cross'
         
         %% Run ABC Optimization
         R = setSimTime(R,32);
