@@ -1,4 +1,4 @@
-function [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData(R,m,uc,pnew,simtime,plotop)
+function [r2,pnew,feat_sim,xsims,xsims_gl,wflag,R] = computeSimData(R,m,uc,pnew,simtime,plotop)
 if nargin<6
     plotop = 0;
 end

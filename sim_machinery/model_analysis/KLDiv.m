@@ -2,7 +2,7 @@ function [KL DKL] = KLDiv(R,p,m,parOptBank)
 %% Resample parameters
 % Compute indices of optimised parameter
 pVec = spm_vec(p);
-pInd = parOptInds_110817(R,p,m.m,2); % in structure form
+pInd = parOptInds_110817(R,p,m.m); % in structure form
 pIndMap = spm_vec(pInd); % in flat form
 
 precInd = parOptIndsPrec_110817(R,p,m.m,2);

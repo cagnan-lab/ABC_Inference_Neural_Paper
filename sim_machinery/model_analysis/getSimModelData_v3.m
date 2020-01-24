@@ -16,14 +16,15 @@ for pn = 1:numel(modID)
     parOptBank = parBank(1:end,1:2^10);
     R.parOptBank = parOptBank;
     R.obs.gainmeth = {};
-    %% ADDED
+    % This allows you to recover all simulated channels, not just those in
+    % the empirical data
     if allsimchan == 1
         R.chloc_name = Rorg.chloc_name;
         R.chsim_name = R.chloc_name;
         R.obs.obsstates = Rorg.obs.obsstates;
     end
     %%
-    R.analysis.modEvi.N = 2000;
+    R.analysis.modEvi.N = 2000; % Number of draws
     R.analysis.BAA.flag = 1;
     R.analysis.BAA.redmeth = 'UQ'; % average samples to get parameters
     R = setSimTime(R,simtime);
