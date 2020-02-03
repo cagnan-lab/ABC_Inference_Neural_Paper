@@ -35,6 +35,9 @@ for condsel = 1:numel(R.condnames)
         case 'white_covar'
             u = (sqrtm(m.uset.p.covar)*randn(m.m,R.IntP.nt)).*m.uset.p.scale;
             u = u';
+        case 'constant'
+             u = repmat(m.uset.p.scale,m.m,R.IntP.nt);
+             u = u';
         case 'zero'
             u= zeros(m.m,R.IntP.nt)';
         case 'white+beta'
