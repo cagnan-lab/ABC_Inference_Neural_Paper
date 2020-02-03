@@ -2,7 +2,7 @@ function par = postDrawMVN(R,Mfit,pOrg,pIndMap,pSigMap,rep)
 disp('Drawing from multivariate normal...')
 cflag = 0;
 x1 = mvnrnd(Mfit.Mu',Mfit.Sigma',rep)';
-
+% x1 = x1(pIndMap,:);
 % Plot the mv normal dist
 if R.plot.flag == 1
     figure(3)

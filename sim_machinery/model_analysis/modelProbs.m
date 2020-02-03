@@ -16,37 +16,14 @@ N = R.analysis.modEvi.N;
 if R.analysis.BAA.flag == 0
     
     %% Resample parameters
-    % Compute indices of optimised parameter
-    pInd = parOptInds_110817(R,p,m.m,2); % in structure form
-    pIndMap = spm_vec(pInd); % in flat form
-    % pIndMap (71 x 1)
-    % xf (71 x size(parOptBank,2) )
-    R.SimAn.minRank = ceil(size(pIndMap,1)*2);
-    xf = zeros(size(pIndMap,1),size(parOptBank,2));
-    for i = 1:size(pIndMap,1)
-        x = parOptBank(pIndMap(i),:); % choose row of parameter values
-        xf(i,:) = x;
-    end
-    
-    disp('Drawing from copula...')
-    r = copularnd('t',R.Mfit.Rho,R.Mfit.nu,N);
-    clear x1
-    for Q = 1:size(xf,1)
-        x1(Q,:) = ksdensity(xf(Q,:),r(:,Q),'function','icdf');
-    end
-    % setup pars from base
-    clear base
-    base = repmat(spm_vec(p),1,N);
-    for i = 1:N
-        base(pIndMap,i) = x1(:,i); % Insert changing pars into whole base pars
-        par{i} = spm_unvec(base(:,i),p);
-    end
-%     plotDistChange_KS(R.Mfit.Rho,R.Mfit.nu,xf,p,pInd,R,1)
-   plotProposalDist(R,R.Mfit,xf,pIndMap,1) 
-    % Setup Parfor
-%     if isempty(gcp)
-%         parpool
-%     end
+   % Compute indices of parameters to be optimized
+   [pInd,pMu,pSig] = parOptInds_110817(R,p,m.m); % in structure form
+   % Form descriptives
+   pIndMap = spm_vec(pInd); % in flat form
+   pMuMap = spm_vec(pMu);
+   pSigMap = spm_vec(pSig);
+   par = postDrawCopula(R,R.Mfit,p,pIndMap,pSigMap,rep);
+
     a = gcp;
     ppm = ParforProgMon('Model Probability Calculation',N);
     parforArg = a.NumWorkers;
