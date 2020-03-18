@@ -6,7 +6,7 @@ switch R.data.datatype
         NPDsim  = sim_dat; % simulated
         for i = 1:size(NPDemp,1)
             for j = 1:size(NPDemp,2)
-                switch R.objfx.feattype 
+                switch R.objfx.feattype
                     case 'complex'
                         if i~=j
                             yfx = (squeeze(imag(NPDsim(i,j,:))));
@@ -154,7 +154,8 @@ switch R.data.datatype
                 if size(ffx,1)<size(ffx,2)
                     ffx = ffx';
                 end
-                r = goodnessOfFit(yfx,ffx,'NRMSE');
+                r = rsquare(yfx,ffx);
+                %  r = goodnessOfFit(yfx,ffx,'NRMSE');
                 r2loop(i) = r;
             catch
                 r2loop(i) = -32;

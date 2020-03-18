@@ -10,11 +10,12 @@ for i = 1:size(Tm,2)
 end
 
 if size(Tm,2)>=10
-    [Tm,r2med] = remnan(Tm,r2med);
-    lfit = logisticfit(Tm',r2med',[-0.5 -5 1.5 2]);
-    plot(Tm',lfit(Tm'))
-    lfit = logfit(Tm',r2med',[1 1]);
-    plot(Tm',lfit(Tm'))
+    disp('You need to find the logisticfit tools!')
+%     [Tm,r2med] = remnan(Tm,r2med);
+%     lfit = logisticfit(Tm',r2med',[-0.5 -5 1.5 2]);
+%     plot(Tm',lfit(Tm'))
+%     lfit = logfit(Tm',r2med',[1 1]);
+%     plot(Tm',lfit(Tm'))
 end
 ylim([-1 1])
 axis square
