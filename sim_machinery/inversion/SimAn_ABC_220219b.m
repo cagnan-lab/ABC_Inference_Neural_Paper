@@ -204,7 +204,8 @@ while ii <= R.SimAn.searchMax
         end
         W = ((s(end,:)-1).^-1);
         W = W./sum(W);
-        Mfit.Mu = wmean(xs,W,2);
+        Ws = repmat(W,size(xs,1),1); % added 03/2020 as below wasnt right dim (!)
+        Mfit.Mu = wmean(xs,Ws,2);
         Mfit.Sigma = weightedcov(xs',W);
         %             Mfit.Mu = mean(parBank(pMuMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2))),2);
         %             Mfit.Sigma = cov(parBank(pMuMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)))');
@@ -250,7 +251,7 @@ while ii <= R.SimAn.searchMax
             pmean = p;
         end
         
-        figure(2);    clf
+        figure(2);  clf
         optProgPlot(1:ii,r2loop(Ilist(1)),pmean,banksave,eps_rec,bestr2,pInd,pSig,R)
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
