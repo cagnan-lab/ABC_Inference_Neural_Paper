@@ -1,7 +1,7 @@
-function [R,parBank] = SimAn_ABC_220219b(R,p,m,parBank)
+function [R,parBank] = SimAn_ABC_250320(R,p,m,parBank)
 %%%% SIMULATED ANNEALING for APROXIMATE BAYESIAN COMPUTATION for
 %%%% HIGH DIMENSIONAL DYNAMICAL MODELS
-% ---- 16/08/18---------------------------
+% ---- 25/03/20---------------------------
 % This annealing function uses approximate Bayesian computation in order to
 % estimate the posterior parameter distributions, using a shifting epsilon
 % that moves with a cooling schedule.
@@ -21,9 +21,9 @@ function [R,parBank] = SimAn_ABC_220219b(R,p,m,parBank)
 % There are several plotting functions which will track the progress of the
 % annealing.
 % TO DO:
-% Explore weighting the particles for each iteration placing emphasis on
-% the highest.
-% Consider two proposals - one conservative vs one exploratory
+%
+%
+%
 % Timothy West (2018) - UCL CoMPLEX
 % / UCL, Wellcome Trust Centre for Human Neuroscience
 %%%%%%%%%%%%%%%%%%%%%%
@@ -63,6 +63,7 @@ else
     Mfit.prior = Mfit;
     par = postDrawMVN(R,Mfit,pOrg,pIndMap,pSigMap,rep);
 end
+R.Mfit.DKL = 0; % Divergence is zero to begin
 parPrec(:,1) = diag(Mfit.Sigma);
 itry = 0; cflag = 0;
 ii = 1; parOptBank = [];
@@ -83,8 +84,10 @@ while ii <= R.SimAn.searchMax
             u = innovate_timeseries(R,m);
             u{1} = u{1}.*sqrt(R.IntP.dt);
             [r2,pnew,feat_sim,xsims,xsims_gl] = computeSimData120319(R,m,u,pnew,0,0);
+            % Adjust the score to account for set complexity
             
-            r2rep{jj} = r2;
+            r2rep(jj) = (R.SimAn.scoreweight(1)*r2);
+            ACCrep{jj} = (R.SimAn.scoreweight(1)*r2) - (R.SimAn.scoreweight(2)*R.Mfit.DKL);
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;
@@ -92,7 +95,7 @@ while ii <= R.SimAn.searchMax
         end % End of batch replicates
         
         % Retrieve fits
-        r2loop = [r2rep{:}];
+        r2loop = [ACCrep{:}];
         % Delete failed simulations
         r2loop(r2loop==1) = -inf;
         r2loop(isnan(r2loop)==1) = -inf;
@@ -125,9 +128,9 @@ while ii <= R.SimAn.searchMax
                 ji = ji+1;
             end
         else
-             ji = ji+1;
+            ji = ji+1;
         end
-
+        
     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -192,8 +195,9 @@ while ii <= R.SimAn.searchMax
     %% Compute Proposal Distribution
     if cflag == 1 && itry == 0 % estimate new copula
         [Mfit,cflag] = postEstCopula(parOptBank,Mfit,pIndMap,pOrg);
-    end
-    if cflag == 0 % Draw from Normal Distribution
+        R.Mfit = Mfit;
+        [KL DKL R] = KLDiv(R,p,m,1);
+    elseif cflag == 0 % Draw from Normal Distribution
         % Set Weights
         if size(parOptBank,2)>R.SimAn.minRank
             s = parOptBank(end,:);
@@ -207,9 +211,15 @@ while ii <= R.SimAn.searchMax
         Ws = repmat(W,size(xs,1),1); % added 03/2020 as below wasnt right dim (!)
         Mfit.Mu = wmean(xs,Ws,2);
         Mfit.Sigma = weightedcov(xs',W);
+        R.Mfit = Mfit;
+        
         %             Mfit.Mu = mean(parBank(pMuMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2))),2);
         %             Mfit.Sigma = cov(parBank(pMuMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)))');
+        [KL DKL R] = KLDiv(R,p,m,0);
     end
+    
+    %% Compute Complexity Accounted Cost Function
+    
     
     %% Draw from Proposal Distribution
     if cflag == 1
@@ -218,10 +228,11 @@ while ii <= R.SimAn.searchMax
         par = postDrawMVN(R,Mfit,pOrg,pIndMap,pSigMap,rep);
     end
     try
-        Rtmp = R; Rtmp.Mfit = Mfit; Rtmp.analysis.modEvi.N = 1000;
-        kldHist(ii) = nansum(KLDiv(Rtmp,p,m,parOptBank));
+        kldHist(ii) = R.SimAn.scoreweight(2)*R.Mfit.DKL;
+        r2Hist(ii) = mean(R.SimAn.scoreweight(2).*r2rep);
     catch
         kldHist(ii) = NaN;
+        r2Hist(ii) = NaN;
     end
     saveMkPath([R.rootn 'outputs\' R.out.tag '\' R.out.dag '\klHist_' R.out.tag '_' R.out.dag '.mat'],kldHist)
     parPrec(:,ii+1) = diag(Mfit.Sigma);
@@ -252,31 +263,31 @@ while ii <= R.SimAn.searchMax
         end
         
         figure(2);  clf
-        optProgPlot(1:ii,r2loop(Ilist(1)),pmean,banksave,eps_rec,bestr2,pInd,pSig,R)
+        optProgPlot(1:ii,r2loop(Ilist(1)),pmean,banksave,eps_rec,bestr2,pInd,pSig,R,kldHist,r2Hist)
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-%                 figure(4)
-%                 tvec_obs = R.IntP.tvec;
-%                 tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
-%                 R.IntP.tvec_obs = tvec_obs;
-%                 ptr(1) = subplot(2,1,1);
-%                 try
-%                     plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
-%                     xlabel('Time (s)'); ylabel('Amplitude')
-%                     if numel(xsims_rep{Ilist(1)})>1
-%                         ptr(2) = subplot(2,1,2);
-%                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{2},1),1)',xsims_rep{Ilist(1)}{2}'); %xlim([15 20])
-%                         linkaxes(ptr,'x'); %xlim([10 20])
-%                     else
-%                         ptr(2) = subplot(2,1,2);
-%                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
-%                         xlim  ([8 10])
-%                     end
-%                     xlabel('Time (s)'); ylabel('Amplitude')
-%                     legend(R.chsim_name)
-%                     drawnow;shg
-%                 end
+        %                 figure(4)
+        %                 tvec_obs = R.IntP.tvec;
+        %                 tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
+        %                 R.IntP.tvec_obs = tvec_obs;
+        %                 ptr(1) = subplot(2,1,1);
+        %                 try
+        %                     plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
+        %                     xlabel('Time (s)'); ylabel('Amplitude')
+        %                     if numel(xsims_rep{Ilist(1)})>1
+        %                         ptr(2) = subplot(2,1,2);
+        %                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{2},1),1)',xsims_rep{Ilist(1)}{2}'); %xlim([15 20])
+        %                         linkaxes(ptr,'x'); %xlim([10 20])
+        %                     else
+        %                         ptr(2) = subplot(2,1,2);
+        %                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
+        %                         xlim  ([8 10])
+        %                     end
+        %                     xlabel('Time (s)'); ylabel('Amplitude')
+        %                     legend(R.chsim_name)
+        %                     drawnow;shg
+        %                 end
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')
@@ -296,7 +307,7 @@ while ii <= R.SimAn.searchMax
     %     assignin('base','R_out',R)
     deltaPrec(ii) = mean(diff(parPrec(:,[ii ii+1]),[],2));
     
-    if (abs(delta_act) < R.SimAn.convIt) && (delta_act~=0) 
+    if (abs(delta_act) < R.SimAn.convIt.dEps) && (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1)
         disp('Itry Exceeded: Convergence')
         saveSimABCOutputs(R,Mfit,m,parBank)
         if R.plot.flag == 1

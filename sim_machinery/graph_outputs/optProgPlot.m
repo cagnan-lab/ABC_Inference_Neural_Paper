@@ -1,4 +1,4 @@
-function [] = optProgPlot(Tm,tbr2,p,r2bank,eps_rec,bestr2,pInd,pSig,R)
+function [] = optProgPlot(Tm,tbr2,p,r2bank,eps_rec,bestr2,pInd,pSig,R,kldHist,r2Hist)
 
 subplot(2,2,1)
 plot(Tm,tbr2)
@@ -22,7 +22,12 @@ axis square
 subplot(2,2,2)
 hold on
 plot(Tm,eps_rec,'r','LineWidth',3)
+plot(Tm,r2Hist,'c','LineWidth',3)
 plot(Tm,bestr2,'b','LineWidth',3)
+ylim([-1 1])
+yyaxis right
+plot(Tm,kldHist,'g','LineWidth',3)
+ylim([0 0.4]);
 axis square
 
 subplot(2,1,2)

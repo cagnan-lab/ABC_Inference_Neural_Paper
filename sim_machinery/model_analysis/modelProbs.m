@@ -10,7 +10,7 @@ eps = R.analysis.modEvi.eps; % temporary (calculated later from whole model fami
 
 % parOptBank = parOptBank(:,parOptBank(end,:)>eps);
 %% Compute KL Divergence
-[KL DKL] = KLDiv(R,p,m,parOptBank);
+[KL DKL] = KLDiv(R,p,m,1);
 N = R.analysis.modEvi.N;
 
 if R.analysis.BAA.flag == 0
@@ -22,12 +22,17 @@ if R.analysis.BAA.flag == 0
    pIndMap = spm_vec(pInd); % in flat form
    pMuMap = spm_vec(pMu);
    pSigMap = spm_vec(pSig);
-   par = postDrawCopula(R,R.Mfit,p,pIndMap,pSigMap,rep);
+   par = postDrawCopula(R,R.Mfit,p,pIndMap,pSigMap,N);
 
     a = gcp;
-    ppm = ParforProgMon('Model Probability Calculation',N);
+    ppm = ParforProgMon('Model Probability Calculation',N,1);
     parforArg = a.NumWorkers;
 % parforArg = 6;
+    base = parOptBank(1:end,:);
+
+
+
+
 elseif R.analysis.BAA.flag
     base = parOptBank(1:end,:);
     % If doing BAA analysis of model
@@ -52,23 +57,20 @@ elseif R.analysis.BAA.flag
     end
 end
 
-%%Plot Example
-
+%%
 figure(5)
 pnew = par{1};
 u = innovate_timeseries(R,m);
 u{1} = u{1}.*sqrt(R.IntP.dt);
-[r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData(R,m,u,pnew,0);
+[r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData120319(R,m,u,pnew,0,1);
 wfstr = ones(1,N);
 while wfstr(end)>0
     parfor (jj = 1:N, parforArg)
         %     parfor jj = 1:N
-        
-        %     ppm.increment();
         pnew = par{jj};
         u = innovate_timeseries(R,m);
         u{1} = u{1}.*sqrt(R.IntP.dt);
-        [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData(R,m,u,pnew,0);
+        [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData120319(R,m,u,pnew,0);
         
         %     R.plot.outFeatFx({},{feat_sim},R.data.feat_xscale,R,1)
         wfstr(jj) = any(wflag);
@@ -83,11 +85,12 @@ while wfstr(end)>0
             xsims_rep{jj} = xsims_gl;
         end
     end
+    
     if ~R.analysis.BAA.flag
         wfstr(end) = 0;
     end
 end
-
+delete(ppm);
 permMod.r2rep = r2rep;
 permMod.par_rep = par_rep;
 permMod.feat_rep = feat_rep;
@@ -96,8 +99,11 @@ permMod.KL = KL;
 xsimMod = xsims_rep;
 permMod.MAP = spm_unvec(median(base,2),p);
 [a b] = max([r2rep{:}]);
-permMod.bestP = spm_unvec(base(:,b),p);
-
+if R.analysis.BAA.flag
+    permMod.bestP = spm_unvec(base(:,b),p);
+else
+        permMod.bestP = par_rep{b}
+end
 % mkdir([R.rootn 'outputs\' R.out.tag '2\'])
 % save([R.rootn 'outputs\' R.out.tag '2\permMod_' R.out.tag '_' d '.mat'],'permMod')
 % load([R.rootn 'outputs\' R.out.tag '2\permMod_' R.out.tag '_' d '.mat'],'permMod')

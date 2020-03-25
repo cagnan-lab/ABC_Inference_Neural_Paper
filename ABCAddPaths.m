@@ -14,6 +14,11 @@ switch getenv('computername')
         projpath = projpath;
         madpath = 'D:\MATLAB ADDONS';
         spmpath = 'D:\GITHUB\spm12-master';
+    case 'DESKTOP-1QJTIMO'
+        gitpath = 'C:\Users\Tim West\Documents\GitHub';
+        projpath = projpath;
+        madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
+        spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
 end
 
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])
@@ -53,10 +58,8 @@ addpath(genpath([projpath '\ModelSpecs']));
 addpath(genpath([projpath '\priors']));
 addpath(genpath([projpath '\plotting']));
 addpath(genpath([projpath '\routine\' routname]))
-addpath([madpath '\bplot'])
-addpath([madpath '\linspecer'])
-addpath([madpath '\TWtools'])
-addpath([madpath '\DrosteEffect-BrewerMap-221b913'])
+addpath(genpath([projpath '\external_dependencies']))
+
 
 R.root = [projpath];
 R.rootn = R.root; 
