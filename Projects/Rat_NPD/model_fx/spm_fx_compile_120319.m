@@ -132,7 +132,7 @@ for condsel = 1:numel(R.condnames)
     D(6,5) = 3/1000;    % GPi to Thal (Stoelzel J Neurosci. 2017)
     
     D(1,6) = 3/1000;   % Thal to M1 (Lumer, Edelman, Tononi; 1997)
-    D(1,6) = 8/1000;   % M1 to Thal (Lumer, Edelman, Tononi; 1997)
+    D(6,1) = 8/1000;   % M1 to Thal (Lumer, Edelman, Tononi; 1997)
     
     
     D = D(1:m.m,1:m.m);

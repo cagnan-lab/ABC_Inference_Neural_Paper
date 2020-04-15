@@ -50,7 +50,8 @@ delta_act = 0.05;
 pIndMap = spm_vec(pInd); % in flat form
 pMuMap = spm_vec(pMu);
 pSigMap = spm_vec(pSig);
-R.SimAn.minRank = ceil(size(pIndMap,1)*2); %Ensure rank of sample is large enough to compute copula
+R.SimAn.minRank = ceil(size(pIndMap,1)*4); %Ensure rank of sample is large enough to compute copula
+
 % set initial batch of parameters from gaussian priors
 if isfield(R,'Mfit')
     rep =  R.SimAn.rep(1);
@@ -87,7 +88,7 @@ while ii <= R.SimAn.searchMax
             % Adjust the score to account for set complexity
             
             r2rep(jj) = (R.SimAn.scoreweight(1)*r2);
-            ACCrep{jj} = (R.SimAn.scoreweight(1)*r2) - (R.SimAn.scoreweight(2)*R.Mfit.DKL);
+            ACCrep{jj} = (R.SimAn.scoreweight(1)*(r2-1)) - (R.SimAn.scoreweight(2)*R.Mfit.DKL);
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;
@@ -147,9 +148,9 @@ while ii <= R.SimAn.searchMax
     B = eig(cov(A));
     C = B/sum(B);
     eRank = sum(cumsum(C)>0.01);
-    if size(A,2)>8
-        R.SimAn.minRank = ceil(eRank*4);
-    end
+%     if size(A,2)>8
+%         R.SimAn.minRank = ceil(eRank*4);
+%     end
     fprintf('effective rank of optbank is %.0f\n',eRank)
     if size(parOptBank,2)> R.SimAn.minRank-1
         if size(parOptBank,2) < 2*(R.SimAn.minRank-1)
@@ -160,7 +161,7 @@ while ii <= R.SimAn.searchMax
         else % if the bank is very large than take subset
             disp('Bank is large taking new subset to form eps')
             parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
-            eps_act = min(parOptBank(end,:));
+            eps_act = median(parOptBank(end,:));
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
         end
@@ -175,10 +176,18 @@ while ii <= R.SimAn.searchMax
         disp('Recomputing eps from parbank')
         parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
         %         eps_act = min(parOptBank(end,:));
-        eps_act = prctile(parBank(end,1:R.SimAn.minRank),75);
+        eps_act = prctile(parOptBank(end,:),75);
         cflag = 1;
         itry = 0;
+        
+        % Stop getting stuck
+%         if (eps_act-eps_prior) == 0
+%             eps_act = eps_act./2;
+%         end
     end
+    
+    
+    
     if itry==0
         % Compute expected gradient for next run
         delta_exp = eps_exp-eps_prior;
@@ -234,12 +243,12 @@ while ii <= R.SimAn.searchMax
         kldHist(ii) = NaN;
         r2Hist(ii) = NaN;
     end
-    saveMkPath([R.rootn 'outputs\' R.out.tag '\' R.out.dag '\klHist_' R.out.tag '_' R.out.dag '.mat'],kldHist)
+    saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\klHist_' R.out.tag '_' R.out.dag '.mat'],kldHist)
     parPrec(:,ii+1) = diag(Mfit.Sigma);
     parHist(ii) = averageCell(par);
-    saveMkPath([R.rootn 'outputs\' R.out.tag '\' R.out.dag '\parHist_' R.out.tag '_' R.out.dag '.mat'],parHist)
+    saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\parHist_' R.out.tag '_' R.out.dag '.mat'],parHist)
     banksave{ii} = parBank(end,parBank(end,:)>eps_act);
-    saveMkPath([R.rootn 'outputs\' R.out.tag '\' R.out.dag '\bankSave_' R.out.tag '_' R.out.dag '.mat'],banksave)
+    saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\bankSave_' R.out.tag '_' R.out.dag '.mat'],banksave)
     %%%%%%%%%%%%%%% SAVE PROGRESS, PLOTTING ETC. %%%%%%%%%%%%%%%%%%%%%%%%%%
     if size(Ilist,2)>2 && R.plot.flag ==1
         if isfield(R.plot,'outFeatFx')
@@ -307,14 +316,21 @@ while ii <= R.SimAn.searchMax
     %     assignin('base','R_out',R)
     deltaPrec(ii) = mean(diff(parPrec(:,[ii ii+1]),[],2));
     
-    if (abs(delta_act) < R.SimAn.convIt.dEps) && (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1)
+    try
+         RFLAG = (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1);
+    catch
+        RFLAG = 0;
+    end
+    
+    
+    if (abs(delta_act) < R.SimAn.convIt.dEps) && RFLAG
         disp('Itry Exceeded: Convergence')
         saveSimABCOutputs(R,Mfit,m,parBank)
         if R.plot.flag == 1
             H(1) = figure(1);
             H(2) = figure(2);
             H(3) = figure(3);
-            saveFigure(H,[R.rootn 'outputs\' R.out.tag '\' R.out.dag '\convergenceFigures'])
+            saveFigure(H,[R.rootn 'outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\convergenceFigures'])
         end
         return
     end

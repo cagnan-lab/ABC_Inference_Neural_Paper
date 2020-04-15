@@ -9,7 +9,7 @@ precInd = parOptIndsPrec_110817(R,p,m.m,2);
 precIndMap = spm_vec(precInd);
 p = pVec(pIndMap);
 
-R.SimAn.minRank = ceil(size(pIndMap,1)*1.1);
+% R.SimAn.minRank = ceil(size(pIndMap,1)*1.1);
 % xf = zeros(size(pIndMap,1),size(parOptBank,2));
 % for i = 1:size(pIndMap,1)
 %     xf(i,:) = parOptBank(pIndMap(i),:); % choose row of parameter values

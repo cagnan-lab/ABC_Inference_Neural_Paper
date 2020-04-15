@@ -4,63 +4,82 @@ switch R.data.datatype
     case 'CSD'
         NPDemp  = R.data.feat_emp; % empirical
         NPDsim  = sim_dat; % simulated
-        for i = 1:size(NPDemp,1)
-            for j = 1:size(NPDemp,2)
+                for C = 1:numel(R.condnames)
+        for i = 1:size(NPDemp,2)
+            for j = 1:size(NPDemp,3)
                 switch R.objfx.feattype
                     case 'complex'
                         if i~=j
-                            yfx = (squeeze(imag(NPDsim(i,j,:))));
-                            ffx = (squeeze(imag(NPDemp(i,j,:))));
-                            r(1) = goodnessOfFit(yfx,ffx,'NRMSE');
+                            yfx = (squeeze(imag(NPDsim(C,i,j,1,:))));
+                            ffx = (squeeze(imag(NPDemp(C,i,j,1,:))));
+                            r(1) = -RMSE(yfx,ffx);
                             
-                            yfx = (squeeze(real(NPDsim(i,j,:))));
-                            ffx = (squeeze(real(NPDemp(i,j,:))));
-                            r(2) = goodnessOfFit(yfx,ffx,'NRMSE');
-                            r2loop(i,j) = mean(r);
+                            yfx = (squeeze(real(NPDsim(C,i,j,1,:))));
+                            ffx = (squeeze(real(NPDemp(C,i,j,1,:))));
+                            r(2) = -RMSE(yfx,ffx);
+                            r2loop(C,i,j) = mean(r);
                             
                         else
-                            yfx = squeeze(abs(NPDsim(i,j,:)));
-                            ffx = squeeze(abs(NPDemp(i,j,:)));
-                            r(2) = goodnessOfFit(yfx,ffx,'NRMSE');
+                            yfx = squeeze(abs(NPDsim(C,i,j,1,:)));
+                            ffx = squeeze(abs(NPDemp(C,i,j,1,:)));
+                            r(2) = -RMSE(yfx,ffx);
                             
-                            r2loop(i,j) = r(2);
+                            r2loop(C,i,j) = r(2);
                         end
                     case 'imaginary'
                         if i~=j
-                            yfx = (squeeze(imag(NPDsim(i,j,:))));
-                            ffx = (squeeze(imag(NPDemp(i,j,:))));
+                            yfx = (squeeze(imag(NPDsim(C,i,j,1,:))));
+                            ffx = (squeeze(imag(NPDemp(C,i,j,1,:))));
                             r(1) = goodnessOfFit(yfx,ffx,'NRMSE');
                             
-                            r2loop(i,j) = r(1); %mean(r);
+                            r2loop(C,i,j) = r(1); %mean(r);
                             
                         else
-                            yfx = squeeze(abs(NPDsim(i,j,:)));
-                            ffx = squeeze(abs(NPDemp(i,j,:)));
+                            yfx = squeeze(abs(NPDsim(C,i,j,1,:)));
+                            ffx = squeeze(abs(NPDemp(C,i,j,1,:)));
                             r(2) = goodnessOfFit(yfx,ffx,'NRMSE');
                             
-                            r2loop(i,j) = r(2);
+                            r2loop(C,i,j) = r(2);
                         end
                     case 'absolute'
-                        yfx = squeeze(abs(NPDsim(i,j,:)));
-                        ffx = squeeze(abs(NPDemp(i,j,:)));
+                        yfx = squeeze(abs(NPDsim(C,i,j,1,:)));
+                        ffx = squeeze(abs(NPDemp(C,i,j,1,:)));
                         r(1) = goodnessOfFit(yfx,ffx,'NRMSE');
-                        r2loop(i,j) = r(1);
+                        r2loop(C,i,j) = r(1);
                 end
             end
         end
+                end
         % r2loop = triu(r2loop);
         % r2loop = diag(r2loop);
         % r2loop = r2loop(1,1);
         % r2loop = reshape(r2loop,1,[]);
         % r2loop(isnan(r2loop)) = [];
         % r2mean = mean(r2loop,2);
-        switch R.objfx.specspec;
+        switch R.objfx.specspec
             case 'auto'
-                r2mean = mean(diag(r2loop));
-                %         r2mean = sum(diag(r2loop));
+                for C = 1:numel(R.condnames)
+                    r2mean(C) = nanmean(diag(squeeze(r2loop(C,:,:))));
+                end
+                r2mean = mean(r2mean);
+                
             case 'cross'
-                r2mean = mean(r2loop(triu(r2loop)~=0));
+                for C = 1:numel(R.condnames)
+                    r2C = squeeze(r2loop(C,:,:));
+                    %                     r2mean(C) = nanmean(r2C(triu(r2C)~=0));
+                    r2mean(C) = nanmean(r2C(:));
+                end
                 %         r2mean = sum(r2loop(triu(r2loop)~=0));
+                r2mean = mean(r2mean);
+                %                 simdat = yfxx(:); simdat(isnan(simdat)) = 0;
+                %                 empdat = ffxx(:); empdat(isnan(empdat)) = 0;
+                %                 r2mean = goodnessOfFit(simdat,empdat,'NRMSE');
+            case 'cross_only'
+                for C = 1:numel(R.condnames)
+                    r2C = squeeze(r2loop(C,:,:));
+                    r2mean(C) = nanmean(r2C(logical(~eye(j).*(triu(r2C)~=0))));
+                end
+                r2mean = mean(r2mean);
         end
         %% NPD
     case 'NPD'

@@ -19,6 +19,7 @@ switch getenv('computername')
         projpath = projpath;
         madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
         spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
+        R.path.datapath = 'C:\DATA\Shenghong_Tremor';
 end
 
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])
@@ -52,6 +53,7 @@ if ~onPath; addpath(spmpath); spm eeg; close all; end
 
 addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\ABC_dependencies']))
 addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
+addpath(genpath([gitpath '\Spike-smr-reader']))
 addpath(genpath([projpath '\data']));
 addpath(genpath([projpath '\model_fx']));
 addpath(genpath([projpath '\ModelSpecs']));
@@ -61,6 +63,6 @@ addpath(genpath([projpath '\routine\' routname]))
 addpath(genpath([projpath '\external_dependencies']))
 
 
-R.root = [projpath];
-R.rootn = R.root; 
-R.projectn = routname;
+R.path.root = [projpath];
+R.path.rootn = R.path.root; 
+R.path.projectn = routname;

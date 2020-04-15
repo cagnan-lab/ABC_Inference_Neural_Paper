@@ -1,4 +1,4 @@
-function [F meannpd wflag meanconf] = constructNPDMat_011019(dataS,chloc_name,chlist,fsamp,N,R)
+function [F meannpd wflag meanconf] = constructNPDMat_090420(dataS,chloc_name,chlist,fsamp,N,R)
 if isempty(N)
     N = floor(fsamp/R.obs.csd.df);
 end
@@ -30,7 +30,7 @@ for C = 1:O
                         F_scale = R.frqz;
 
                         if nargin>5
-                            Pxy = interp1(F,Pxy,F_scale);
+                            Pxy = interp1(F,Pxy,F_scale,'spline');
                         else
                             Pxy =  Pxy(F>4);
                         end
@@ -39,7 +39,7 @@ for C = 1:O
                             [xCalc yCalc b Rsq] = linregress(F_scale',Pxy');
                             [dum bi] = intersect(F_scale,xCalc);
                             Pxy = Pxy(1,bi)-yCalc';
-                            Pxy = 10.^Pxy; F_scale = 10.^(F_scale);
+                            Pxy = 10.^Pxy; F_scale = 10.^(F_scale(bi));
                         else
                             Pxy(isnan(F_scale)) = [];
                             F_scale(isnan(F_scale)) = [];
@@ -83,7 +83,7 @@ for C = 1:O
                             Pxy = f13(:,zl(z));
                             %                         nPxy = nf13(:,12);
                             if nargin>5
-                                Pxy = interp1(F,Pxy,F_scale);
+                                Pxy = interp1(F,Pxy,F_scale,'spline');
                             else
                                 Pxy =  Pxy(F>4);
                             end
