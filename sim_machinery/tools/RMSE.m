@@ -1,4 +1,4 @@
-function RMSE = RMSE(y,yhat)
+function [MSE RMSE] = RMSE(y,yhat)
 E = (y - yhat);    % Errors
 SE = E.^2; %(y - yhat).^2   % Squared Error
 MSE = mean(SE); %mean((y - yhat).^2)   % Mean Squared Error

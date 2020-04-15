@@ -1,4 +1,4 @@
-function R2 = rsquare(y,yhat)
+function [R2 SSE] = rsquare(y,yhat)
 % PURPOSE:  calculate r square using data y and estimates yhat
 % -------------------------------------------------------------------
 % USAGE: R2 = rsquare(y,yhat)
@@ -34,6 +34,7 @@ while sum(isnan(y))~=0 || sum(isnan(yhat))~=0
 end
 
 % 1 - SSe/SSt
+SSE =  sum( -(y-yhat).^2 ); % Minus sign to be used for LL
 R2 = 1 - ( sum( (y-yhat).^2 ) / sum( (y-mean(y)).^2 ) );
 
 % SSr/SSt

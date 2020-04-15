@@ -1,4 +1,4 @@
-function R = ABCAddPaths(projname,routname)
+function R = ABCAddPaths(projpath,routname)
 switch getenv('computername')
     case 'SFLAP-2'
         usname = 'Tim'; gitpath = '\Documents\Work\GIT'; madpath = 'MATLAB_ADDONS';
@@ -9,10 +9,19 @@ switch getenv('computername')
     case 'DESKTOP-94CEG1L'
         usname = 'timot'; gitpath =  '\Documents\GitHub'; madpath = 'Work\MATLAB ADDONS';
         spmpath = 'C:\Users\timot\Documents\GitHub\spm12';
+    case 'TIM_PC'
+        gitpath = 'D:\GITHUB';
+        projpath = projpath;
+        madpath = 'D:\MATLAB ADDONS';
+        spmpath = 'D:\GITHUB\spm12-master';
+    case 'DESKTOP-1QJTIMO'
+        gitpath = 'C:\Users\Tim West\Documents\GitHub';
+        projpath = projpath;
+        madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
+        spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
+        R.path.datapath = 'C:\DATA\Shenghong_Tremor';
 end
 
-% pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
-% if ~onPath; addpath(spmpath); spm eeg; close all; end
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])
 % addpath(['C:\Users\' usname '\Documents\' madpath '\aboxplot'])
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ATvDFA-package'])
@@ -38,14 +47,22 @@ end
 % addpath(genpath(['C:\Users\' usname '\' gitpath '\BurstToolbox']))
 % addpath(genpath(['C:\Users\' usname '\' gitpath '\highdim']))
 
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\ABC_dependencies']))
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\data']));
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\model_fx']));
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\ModelSpecs']));
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\priors']));
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\Projects\' projname '\routine\' routname]))
+pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
+if ~onPath; addpath(spmpath); spm eeg; close all; end
 
 
-R.root = ['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\'];
-R.projectn = projname;
+addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\ABC_dependencies']))
+addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
+addpath(genpath([gitpath '\Spike-smr-reader']))
+addpath(genpath([projpath '\data']));
+addpath(genpath([projpath '\model_fx']));
+addpath(genpath([projpath '\ModelSpecs']));
+addpath(genpath([projpath '\priors']));
+addpath(genpath([projpath '\plotting']));
+addpath(genpath([projpath '\routine\' routname]))
+addpath(genpath([projpath '\external_dependencies']))
+
+
+R.path.root = [projpath];
+R.path.rootn = R.path.root; 
+R.path.projectn = routname;
