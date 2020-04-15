@@ -32,7 +32,7 @@ for pn = 1:numel(modID)
     R = setSimTime(R,simtime);
     % You need to reduce the parameter space to just 'A', from the original
     % pOptList;
-    [R2,pIndMap,pMuMap,pSigMap] = reassignParOpts(R,p,m,{'.A'},2);
+    [R2,pIndMap,pMuMap,pSigMap] = reassignParOpts(R,p,m,{'.A'},5);
 
     par = postDrawMVN(R2,R2.Mfit,p,pIndMap,pSigMap,R2.analysis.modEvi.N);
     
@@ -40,7 +40,7 @@ for pn = 1:numel(modID)
     if isempty(gcp('nocreate'))
         parpool
     end
-    ppm = ParforProgMon('Draw in progress', nDraws, 1, 400, 200)
+    ppm = ParforProgMon('Draw in progress', nDraws, 1, 400, 100);
     
     % Simulate Models
     parfor jj = 1:numel(par)
