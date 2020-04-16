@@ -76,7 +76,7 @@ for C = 1:O
                 if R.obs.trans.norm == 1
                     Pxy = (Pxy-nanmean(Pxy))./nanstd(Pxy);
                     Pxy = Pxy - min(Pxy);
-                end                
+                end
                 
                 if R.obs.trans.gauss3 == 1
                     %                             Pxy = smoothdata(Pxy,'gaussian');
@@ -93,6 +93,13 @@ for C = 1:O
         end
     end
 end
+if R.obs.trans.normcat == 1
+    XM = mean(xcsd(:));
+    XV = std(xcsd(:));
+    xcsd = (xcsd-XM)./XV;
+end
+
+
 feat_out = xcsd;
 F = F_scale;
 meanconf = [];

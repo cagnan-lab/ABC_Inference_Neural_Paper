@@ -37,9 +37,13 @@ for condsel = 1:numel(R.condnames)
                     xsims(j,:) = (xsims(j,:) - mean(xsims(j,:)))./std(xsims(j,:));
                 end
             case 'unitvarConcat'
-                for j = 1:size(xsims,1)
-                    xsims(j,:) = (xsims(j,:) - mean(xsims(j,:)))./std(xsims(j,:));
-                end                
+                LM = [];
+                for C = 1:numel(xstore)
+                    LM = [LM xstore{C}(R.obs.outstates,round(R.obs.brn*(1/R.IntP.dt)):end)];
+                end
+                XM = mean(LM,2);
+                XV = std(LM,[],2);
+                xsims = (xsims-XM)./XV;            
             case 'mixing'
                 %% REPLACE WITH DISTANCE MATRIX
                 mixdeg = R.obs.mixing(1).*exp(p.obs.mixing(1));

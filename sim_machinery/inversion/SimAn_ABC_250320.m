@@ -150,8 +150,8 @@ while ii <= R.SimAn.searchMax
         C = B/sum(B);
         eRank = sum(cumsum(C)>0.01);
         R.SimAn.minRank = ceil(eRank*4);
-    end
     fprintf('effective rank of optbank is %.0f\n',eRank)
+    end
     if size(parOptBank,2)> R.SimAn.minRank-1
         if size(parOptBank,2) < 2*(R.SimAn.minRank-1)
             disp('Bank satisfies current eps')
