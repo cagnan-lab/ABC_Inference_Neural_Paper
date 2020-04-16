@@ -19,27 +19,29 @@ end
 % Main Function Starts Here
 
 NPD_data_n = NPD_data{1};
-for L = 1:length(NPD_sim)
-    NPD_sim_n = NPD_sim{L};
-    
-    if L == bestn
-        lwid = 2;
-    else
-        lwid = 0.5;
-    end
-    N = size(NPD_data_n,2); M = size(NPD_data_n,3); O = size(NPD_data_n,1);
-    for C = 1:O
+for C = 1:O
+    figure(C*10)
+    for L = 1:length(NPD_sim)
+        NPD_sim_n = NPD_sim{L};
+        
+        if L == bestn
+            lwid = 2;
+        else
+            lwid = 0.5;
+        end
+        N = size(NPD_data_n,2); M = size(NPD_data_n,3); O = size(NPD_data_n,1);
+        
         k = 0;
         for i = 1:N
             for j = 1:M
                 k = k+1;
                 subplot(N,M,k)
-
-                    plot(F,squeeze(abs(NPD_sim_n(C,i,j,1,:))),'r--','linewidth',lwid); hold on
-                    plot(F,squeeze(imag(NPD_sim_n(C,i,j,1,:))),'b--','linewidth',lwid);
-                    plot(F,squeeze(abs(NPD_data_n(C,i,j,1,:))),'r','linewidth',2);
-                    plot(F,squeeze(imag(NPD_data_n(C,i,j,1,:))),'b','linewidth',2);
-                    xlabel('Hz'); ylabel('Power'); %title(sprintf('Ch %1.f Pxx',i))
+                
+                plot(F,squeeze(abs(NPD_sim_n(C,i,j,1,:))),'r--','linewidth',lwid); hold on
+                plot(F,squeeze(imag(NPD_sim_n(C,i,j,1,:))),'b--','linewidth',lwid);
+                plot(F,squeeze(abs(NPD_data_n(C,i,j,1,:))),'r','linewidth',2);
+                plot(F,squeeze(imag(NPD_data_n(C,i,j,1,:))),'b','linewidth',2);
+                xlabel('Hz'); ylabel('Power'); %title(sprintf('Ch %1.f Pxx',i))
                 xlim([min(R.frqz) 35]); %max(R.frqz)])
                 axis square
                 %         ylim([-0.03 0.03])
