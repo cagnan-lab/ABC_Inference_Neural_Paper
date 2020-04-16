@@ -17,10 +17,12 @@ end
 
 
 % Main Function Starts Here
-
 NPD_data_n = NPD_data{1};
+O = size(NPD_data_n,1);
+
 for C = 1:O
     figure(C*10)
+    clf
     for L = 1:length(NPD_sim)
         NPD_sim_n = NPD_sim{L};
         
@@ -29,7 +31,7 @@ for C = 1:O
         else
             lwid = 0.5;
         end
-        N = size(NPD_data_n,2); M = size(NPD_data_n,3); O = size(NPD_data_n,1);
+        N = size(NPD_data_n,2); M = size(NPD_data_n,3); 
         
         k = 0;
         for i = 1:N
