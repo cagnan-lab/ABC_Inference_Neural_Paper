@@ -145,12 +145,12 @@ while ii <= R.SimAn.searchMax
     
     %% Find error threshold for temperature (epsilon) and do rejection sampling
     A = parOptBank(pIndMap,:);
-    B = eig(cov(A));
-    C = B/sum(B);
-    eRank = sum(cumsum(C)>0.01);
-%     if size(A,2)>8
-%         R.SimAn.minRank = ceil(eRank*4);
-%     end
+    if size(A,2)>= R.SimAn.minRank
+        B = eig(cov(A'));
+        C = B/sum(B);
+        eRank = sum(cumsum(C)>0.01);
+        R.SimAn.minRank = ceil(eRank*4);
+    end
     fprintf('effective rank of optbank is %.0f\n',eRank)
     if size(parOptBank,2)> R.SimAn.minRank-1
         if size(parOptBank,2) < 2*(R.SimAn.minRank-1)
@@ -181,9 +181,9 @@ while ii <= R.SimAn.searchMax
         itry = 0;
         
         % Stop getting stuck
-%         if (eps_act-eps_prior) == 0
-%             eps_act = eps_act./2;
-%         end
+        %         if (eps_act-eps_prior) == 0
+        %             eps_act = eps_act./2;
+        %         end
     end
     
     
@@ -277,13 +277,13 @@ while ii <= R.SimAn.searchMax
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
         %                 figure(4)
-        %                 tvec_obs = R.IntP.tvec;
-        %                 tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
-        %                 R.IntP.tvec_obs = tvec_obs;
-        %                 ptr(1) = subplot(2,1,1);
+%                         tvec_obs = R.IntP.tvec;
+%                         tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
+%                         R.IntP.tvec_obs = tvec_obs;
+%                         ptr(1) = subplot(2,1,1);
         %                 try
-        %                     plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
-        %                     xlabel('Time (s)'); ylabel('Amplitude')
+%                             plot(repmat(R.IntP.tvec_obs,size(xsims_gl{1},1),1)',xsims_gl{1}');
+%                             xlabel('Time (s)'); ylabel('Amplitude')
         %                     if numel(xsims_rep{Ilist(1)})>1
         %                         ptr(2) = subplot(2,1,2);
         %                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{2},1),1)',xsims_rep{Ilist(1)}{2}'); %xlim([15 20])
@@ -317,7 +317,7 @@ while ii <= R.SimAn.searchMax
     deltaPrec(ii) = mean(diff(parPrec(:,[ii ii+1]),[],2));
     
     try
-         RFLAG = (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1);
+        RFLAG = (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1);
     catch
         RFLAG = 0;
     end
@@ -330,7 +330,7 @@ while ii <= R.SimAn.searchMax
             H(1) = figure(1);
             H(2) = figure(2);
             H(3) = figure(3);
-            saveFigure(H,[R.rootn 'outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\convergenceFigures'])
+            saveFigure(H,[R.path.rootn 'outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\convergenceFigures'])
         end
         return
     end
