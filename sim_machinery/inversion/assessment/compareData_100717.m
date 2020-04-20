@@ -58,28 +58,30 @@ switch R.data.datatype
         % r2mean = mean(r2loop,2);
         switch R.objfx.specspec
             case 'auto'
-                for C = 1:numel(R.condnames)
+                for C = 1:numel(R.nanmedian)
                     r2mean(C) = nanmean(diag(squeeze(r2loop(C,:,:))));
                 end
-                r2mean = mean(r2mean);
+                r2mean = median(r2mean);
                 
             case 'cross'
                 for C = 1:numel(R.condnames)
                     r2C = squeeze(r2loop(C,:,:));
+                    X = triu(r2C);
+                    X(X==0) = [];
                     %                     r2mean(C) = nanmean(r2C(triu(r2C)~=0));
-                    r2mean(C) = nanmean(r2C(:));
+                    r2mean(C) = sum(X);
                 end
                 %         r2mean = sum(r2loop(triu(r2loop)~=0));
-                r2mean = mean(r2mean);
+                r2mean = sum(r2mean);
                 %                 simdat = yfxx(:); simdat(isnan(simdat)) = 0;
                 %                 empdat = ffxx(:); empdat(isnan(empdat)) = 0;
                 %                 r2mean = goodnessOfFit(simdat,empdat,'NRMSE');
             case 'cross_only'
                 for C = 1:numel(R.condnames)
                     r2C = squeeze(r2loop(C,:,:));
-                    r2mean(C) = nanmean(r2C(logical(~eye(j).*(triu(r2C)~=0))));
+                    r2mean(C) = nanmedian(r2C(logical(~eye(j).*(triu(r2C)~=0))));
                 end
-                r2mean = mean(r2mean);
+                r2mean = median(r2mean);
         end
         %% NPD
     case 'NPD'
@@ -136,27 +138,27 @@ switch R.data.datatype
         switch R.objfx.specspec
             case 'auto'
                 for C = 1:numel(R.condnames)
-                    r2mean(C) = nanmean(diag(squeeze(r2loop(C,:,:))));
+                    r2mean(C) = nanmedian(diag(squeeze(r2loop(C,:,:))));
                 end
-                r2mean = mean(r2mean);
+                r2mean = median(r2mean);
                 
             case 'cross'
                 for C = 1:numel(R.condnames)
                     r2C = squeeze(r2loop(C,:,:));
                     %                     r2mean(C) = nanmean(r2C(triu(r2C)~=0));
-                    r2mean(C) = nanmean(r2C(:));
+                    r2mean(C) = nanmedian(r2C(:));
                 end
                 %         r2mean = sum(r2loop(triu(r2loop)~=0));
-                r2mean = mean(r2mean);
+                r2mean = median(r2mean);
                 %                 simdat = yfxx(:); simdat(isnan(simdat)) = 0;
                 %                 empdat = ffxx(:); empdat(isnan(empdat)) = 0;
                 %                 r2mean = goodnessOfFit(simdat,empdat,'NRMSE');
             case 'cross_only'
                 for C = 1:numel(R.condnames)
                     r2C = squeeze(r2loop(C,:,:));
-                    r2mean(C) = nanmean(r2C(logical(~eye(j).*(triu(r2C)~=0))));
+                    r2mean(C) = nanmedian(r2C(logical(~eye(j).*(triu(r2C)~=0))));
                 end
-                r2mean = mean(r2mean);
+                r2mean = median(r2mean);
         end
         %% TIME
     case 'time' % time courses

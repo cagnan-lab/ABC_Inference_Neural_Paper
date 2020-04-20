@@ -1,6 +1,7 @@
 function [xsims_c R wflag] = observe_data(xstore,m,p,R)
-for condsel = 1:numel(R.condnames)
     wflag = 0;
+
+for condsel = 1:numel(R.condnames)
     xsims = xstore{condsel}(R.obs.outstates,:);
     % Delete burnin
     if size(xsims,2) > 5*round(R.obs.brn*(1/R.IntP.dt))
@@ -97,8 +98,8 @@ for condsel = 1:numel(R.condnames)
                         Env = abs(hilbert(xsims(j,:)));
                         % Subsample
                         Env = Env(1:100:end);
-                        [tau p] = corr((1:size(Env,2))',Env','type','Kendall');
-                        montoncheck(j) = p<0.05;
+                        [tau pc] = corr((1:size(Env,2))',Env','type','Kendall');
+                        montoncheck(j) = pc<0.05;
                     %                     Xstab(i) = std(diff(abs(hilbert(xsims(i,:)))))<0.005;
                 end
                 
@@ -117,6 +118,22 @@ for condsel = 1:numel(R.condnames)
     end
     xsims_c{condsel} = xsims;
 end
+
+% if R.obs.condchecker == 1
+% %     xsims_c{1} = xsims_c{1} - mean(xsims_c{1},2);
+% %         xsims_c{2} = xsims_c{2} - mean(xsims_c{2},2);
+%     maxD = ((max(xsims_c{1},[],2)-max(xsims_c{2},[],2))./max(xsims_c{2},[],2)).*100;
+%        if any(abs(maxD)>1e4)
+%            wflag = 1;
+%                   disp('Scale Differeence of conditions is too large!')
+% 
+%        end
+% end
+
+                if wflag == 0
+                    a = 1;
+%                     plot([xsims_c{1} xsims_c{2}]')
+                end
 % if R.obs.norm
 %     % Normalise
 %     for i = 1:size(xstore,1)

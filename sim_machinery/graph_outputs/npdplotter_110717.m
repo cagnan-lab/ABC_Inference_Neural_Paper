@@ -1,4 +1,4 @@
-function ab = npdplotter_110717(NPD_data,NPD_sim,F,R,bestn,labelna)
+function npdplotter_110717(NPD_data,NPD_sim,F,R,bestn,labelna)
 if isempty(NPD_data)
     NPD_data = {zeros(size(NPD_sim{1}))};
 end
@@ -31,7 +31,7 @@ for C = 1:O
         else
             lwid = 0.5;
         end
-        N = size(NPD_data_n,2); M = size(NPD_data_n,3); 
+        N = size(NPD_data_n,2); M = size(NPD_data_n,3);
         
         k = 0;
         for i = 1:N
@@ -39,19 +39,47 @@ for C = 1:O
                 k = k+1;
                 subplot(N,M,k)
                 
-                plot(F,squeeze(abs(NPD_sim_n(C,i,j,1,:))),'r--','linewidth',lwid); hold on
-                plot(F,squeeze(imag(NPD_sim_n(C,i,j,1,:))),'b--','linewidth',lwid);
-                plot(F,squeeze(abs(NPD_data_n(C,i,j,1,:))),'r','linewidth',2);
-                plot(F,squeeze(imag(NPD_data_n(C,i,j,1,:))),'b','linewidth',2);
-                xlabel('Hz'); ylabel('Power'); %title(sprintf('Ch %1.f Pxx',i))
-                xlim([min(R.frqz) 35]); %max(R.frqz)])
+                if i == j
+                    ab(1) = plot(F,squeeze(NPD_sim_n(C,i,j,1,:)),'k--','linewidth',lwid); hold on
+                    ab(1).Color = R.plot.cmap;
+                    ab(2) = plot(F,squeeze(NPD_data_n(C,i,j,1,:)),'k','linewidth',2);
+                    ab(2).Color = [0 0 0];
+                    
+                    plot(F,squeeze(abs(NPD_sim_n(C,i,j,1,:))),'r--','linewidth',lwid); hold on
+                    plot(F,squeeze(imag(NPD_sim_n(C,i,j,1,:))),'b--','linewidth',lwid);
+                    plot(F,squeeze(abs(NPD_data_n(C,i,j,1,:))),'r','linewidth',2);
+                    plot(F,squeeze(imag(NPD_data_n(C,i,j,1,:))),'b','linewidth',2);
+                    xlabel('Hz'); ylabel('Power'); %title(sprintf('Ch %1.f Pxx',i))
+                else
+                    %                     a(3) = plot(F,squeeze(NPD_sim_n(C,i,j,1,:)),'k--','linewidth',lwid); hold on
+                    %                     plot(F,squeeze(NPD_data_n(C,i,j,1,:)),'k','linewidth',2)
+                    %                     xlabel('Hz'); ylabel(labelna);
+                    if i<j
+                        a(1) = plot(F,squeeze(NPD_sim_n(C,i,j,2,:)),'r--','linewidth',lwid); hold on
+                        a(2) = plot(F,squeeze(NPD_data_n(C,i,j,2,:)),'r','linewidth',2);
+                        
+                        a(1).Color = R.plot.cmap;
+                        a(2).Color = [0 0 0];
+                    elseif i>=j
+                        a(1) = plot(F,squeeze(NPD_sim_n(C,i,j,2,:)),'b--','linewidth',lwid); hold on
+                        a(2) = plot(F,squeeze(NPD_data_n(C,i,j,2,:)),'b','linewidth',2);
+                        a(1).Color = R.plot.cmap;
+                        a(2).Color = [0 0 0];
+                        
+                    end
+                    xlabel('Hz'); ylabel(labelna); %title(sprintf('Ch %1.f -> Ch %1.f NPD',i,j));
+                    %                 legend(a,{'Forward','Reverse'})
+                    %                     hold on
+                    %                     plot(F,squeeze(NPD_sim_n(C,i,j,1,:)),'k--','linewidth',lwid)
+                    %                     plot(F,squeeze(NPD_data_n(C,i,j,1,:)),'k','linewidth',2)
+                end
+                xlim([min(R.frqz) max(R.frqz)])
                 axis square
-                %         ylim([-0.03 0.03])
             end
         end
     end
+    set(gcf,'Position',[380         235        1112         893])
 end
-set(gcf,'Position',[380         235        1112         893])
 %LABEL LOCATIONS
 % % Top row
 % labPos(:,1,1) = [0.182654676258993 0.938409854423292 0.0548561151079137 0.0313549832026876];

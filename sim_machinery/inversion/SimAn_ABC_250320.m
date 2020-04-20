@@ -88,7 +88,7 @@ while ii <= R.SimAn.searchMax
             % Adjust the score to account for set complexity
             
             r2rep(jj) = (R.SimAn.scoreweight(1)*r2);
-            ACCrep{jj} = (R.SimAn.scoreweight(1)*(r2-1)) - (R.SimAn.scoreweight(2)*R.Mfit.DKL);
+            ACCrep{jj} = (R.SimAn.scoreweight(1)*(r2)) - (R.SimAn.scoreweight(2)*R.Mfit.DKL);
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;

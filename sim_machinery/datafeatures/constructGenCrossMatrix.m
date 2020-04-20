@@ -93,10 +93,17 @@ for C = 1:O
         end
     end
 end
+
 if R.obs.trans.normcat == 1
-    XM = mean(xcsd(:));
-    XV = std(xcsd(:));
-    xcsd = (xcsd-XM)./XV;
+    % Normalize each component by concatanating the conditions
+    for chI = 1:size(chloc_name,2)
+        for chJ = 1:size(chloc_name,2)
+            Xd = xcsd(:,chJ,chI,1:4,:); %here you select both conditions
+            XM = mean(Xd(:));
+            XV = std(Xd(:));
+            xcsd(:,chJ,chI,1:4,:) = (Xd)./XV; % Rescale
+        end
+    end
 end
 
 
