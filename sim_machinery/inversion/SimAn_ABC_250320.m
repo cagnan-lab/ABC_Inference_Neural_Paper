@@ -92,6 +92,10 @@ while ii <= R.SimAn.searchMax
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;
+            
+            if (ji==1) && (jj==1)
+                xsims_rep{jj} = xsims_gl;
+            end
             disp(['Iterate ' num2str(parl) ' temperature ' num2str(ii)])
         end % End of batch replicates
         
@@ -150,7 +154,7 @@ while ii <= R.SimAn.searchMax
         C = B/sum(B);
         eRank = sum(cumsum(C)>0.01);
         R.SimAn.minRank = ceil(eRank*4);
-    fprintf('effective rank of optbank is %.0f\n',eRank)
+        fprintf('effective rank of optbank is %.0f\n',eRank)
     end
     if size(parOptBank,2)> R.SimAn.minRank-1
         if size(parOptBank,2) < 2*(R.SimAn.minRank-1)
@@ -245,6 +249,7 @@ while ii <= R.SimAn.searchMax
     end
     saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\klHist_' R.out.tag '_' R.out.dag '.mat'],kldHist)
     parPrec(:,ii+1) = diag(Mfit.Sigma);
+    deltaPrec(ii) = mean(diff(parPrec(:,[ii ii+1]),[],2));
     parHist(ii) = averageCell(par);
     saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\parHist_' R.out.tag '_' R.out.dag '.mat'],parHist)
     banksave{ii} = parBank(end,parBank(end,:)>eps_act);
@@ -276,27 +281,26 @@ while ii <= R.SimAn.searchMax
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-        %                 figure(4)
-%                         tvec_obs = R.IntP.tvec;
-%                         tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
-%                         R.IntP.tvec_obs = tvec_obs;
-%                         ptr(1) = subplot(2,1,1);
-        %                 try
-%                             plot(repmat(R.IntP.tvec_obs,size(xsims_gl{1},1),1)',xsims_gl{1}');
-%                             xlabel('Time (s)'); ylabel('Amplitude')
-        %                     if numel(xsims_rep{Ilist(1)})>1
-        %                         ptr(2) = subplot(2,1,2);
-        %                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{2},1),1)',xsims_rep{Ilist(1)}{2}'); %xlim([15 20])
-        %                         linkaxes(ptr,'x'); %xlim([10 20])
-        %                     else
-        %                         ptr(2) = subplot(2,1,2);
-        %                         plot(repmat(R.IntP.tvec_obs,size(xsims_rep{Ilist(1)}{1},1),1)',xsims_rep{Ilist(1)}{1}');
-        %                         xlim  ([8 10])
-        %                     end
-        %                     xlabel('Time (s)'); ylabel('Amplitude')
-        %                     legend(R.chsim_name)
-        %                     drawnow;shg
-        %                 end
+        figure(4)
+        clf
+        tvec_obs = R.IntP.tvec;
+        tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
+        R.IntP.tvec_obs = tvec_obs;
+        try
+            for C = 1:numel(R.condnames)
+                ptrd(C) = subplot(2,2,C);
+                plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}');
+                
+                ptrl(C) =subplot(2,2,C*2);
+                plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}');
+                xlim  ([8 9])
+            end
+            linkaxes(ptrd,'x'); %xlim([10 20])
+            linkaxes(ptrl,'x'); %xlim([10 20])
+            xlabel('Time (s)'); ylabel('Amplitude')
+            legend(R.chsim_name)
+            drawnow;shg
+        end
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')
@@ -312,9 +316,6 @@ while ii <= R.SimAn.searchMax
             saveSimAnFigures(R,ii)
         end
     end
-    % Or to workspace
-    %     assignin('base','R_out',R)
-    deltaPrec(ii) = mean(diff(parPrec(:,[ii ii+1]),[],2));
     
     try
         RFLAG = (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1);

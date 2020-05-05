@@ -24,7 +24,7 @@ for C = 1:O
                 F_scale = R.frqz;
                 
                 if nargin>5
-                    Pxy = interp1(F,Pxy,F_scale,'spline');
+                    Pxy = interp1(F,Pxy,F_scale,'pchip');
                 else
                     Pxy =  Pxy(F>4);
                 end
@@ -45,8 +45,12 @@ for C = 1:O
                 end
                 if R.obs.trans.norm == 1
                     Pxy = (Pxy-nanmean(Pxy))./nanstd(Pxy);
+                end
+                
+                if R.obs.trans.zerobase == 1
                     Pxy = Pxy - min(Pxy);
                 end
+                
                 if R.obs.trans.gauss3 == 1
                     %                             Pxy = smoothdata(Pxy,'gaussian');
                     f = fit(F_scale',Pxy','gauss3');
@@ -68,7 +72,7 @@ for C = 1:O
                 F_scale = R.frqz;
                 F_scale(isnan(F_scale)) = [];
                 if nargin>5
-                    Pxy = interp1(F,Pxy,F_scale,'spline');
+                    Pxy = interp1(F,Pxy,F_scale,'pchip');
                 else
                     Pxy =  Pxy(F>4);
                 end

@@ -16,6 +16,7 @@ for pn = 1:numel(modID)
     parOptBank = parBank(1:end,1:2^10);
     R.parOptBank = parOptBank;
     R.obs.gainmeth = {};
+    
     % This allows you to recover all simulated channels, not just those in
     % the empirical data
     if allsimchan == 1

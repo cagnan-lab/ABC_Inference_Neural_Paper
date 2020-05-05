@@ -30,9 +30,6 @@ if R.analysis.BAA.flag == 0
 % parforArg = 6;
     base = parOptBank(1:end,:);
 
-
-
-
 elseif R.analysis.BAA.flag
     base = parOptBank(1:end,:);
     % If doing BAA analysis of model

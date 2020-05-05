@@ -1,9 +1,10 @@
 function [R,m,permMod,xsimMod] = getSimModelData_Draw(Rorg,modID,simtime,allsimchan,nDraws)
+% This function will retrieve the parameters from the ABC fit of
+% model (modID) and will simulate some data for period specified in simtime for nDraws.
+
 if nargin<4
     allsimchan = 0;
 end
-% This function will  get the parameters from the ABC fit of
-% model (modID) and will simulate some data for period simtime.
 for pn = 1:numel(modID)
     rng(2223) % Ensure random elements are the same
     % Load Model Data
