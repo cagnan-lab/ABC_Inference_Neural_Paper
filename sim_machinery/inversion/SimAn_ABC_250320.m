@@ -243,12 +243,12 @@ while ii <= R.SimAn.searchMax
         kldHist(ii) = NaN;
         r2Hist(ii) = NaN;
     end
-    saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\klHist_' R.out.tag '_' R.out.dag '.mat'],kldHist)
+    saveMkPath([R.path.rootn 'outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\klHist_' R.out.tag '_' R.out.dag '.mat'],kldHist)
     parPrec(:,ii+1) = diag(Mfit.Sigma);
     parHist(ii) = averageCell(par);
-    saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\parHist_' R.out.tag '_' R.out.dag '.mat'],parHist)
+    saveMkPath([R.path.rootn 'outputs\' R.path.projectn '\'  R.out.tag  '\' R.out.dag '\parHist_' R.out.tag '_' R.out.dag '.mat'],parHist)
     banksave{ii} = parBank(end,parBank(end,:)>eps_act);
-    saveMkPath([R.path.rootn 'outputs\' R.out.tag '\' R.out.dag '\bankSave_' R.out.tag '_' R.out.dag '.mat'],banksave)
+    saveMkPath([R.path.rootn 'outputs\' R.path.projectn '\'  R.out.tag  '\' R.out.dag '\bankSave_' R.out.tag '_' R.out.dag '.mat'],banksave)
     %%%%%%%%%%%%%%% SAVE PROGRESS, PLOTTING ETC. %%%%%%%%%%%%%%%%%%%%%%%%%%
     if size(Ilist,2)>2 && R.plot.flag ==1
         if isfield(R.plot,'outFeatFx')

@@ -17,7 +17,7 @@ if size(Tm,2)>=10
 %     lfit = logfit(Tm',r2med',[1 1]);
 %     plot(Tm',lfit(Tm'))
 end
-ylim([-3 0])
+% ylim([-3 0])
 axis square
 subplot(2,2,2)
 hold on
@@ -27,7 +27,7 @@ plot(Tm,bestr2,'b','LineWidth',3)
 ylim([-3 1])
 yyaxis right
 plot(Tm,kldHist,'g','LineWidth',3)
-ylim([0 0.4]);
+% ylim([0 0.4]);
 axis square
 
 % legend({'eps','score','score prime','KLD'})
