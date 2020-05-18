@@ -1,4 +1,4 @@
-function npdplotter_110717(NPD_data,NPD_sim,F,R,bestn,labelna)
+function genplotter_200420(NPD_data,NPD_sim,F,R,bestn,labelna)
 if isempty(NPD_data)
     NPD_data = {zeros(size(NPD_sim{1}))};
 end
@@ -31,7 +31,7 @@ for C = 1:O
         else
             lwid = 0.5;
         end
-        N = size(NPD_data_n,2); M = size(NPD_data_n,3); 
+        N = size(NPD_sim_n,2); M = size(NPD_sim_n,3); 
         
         k = 0;
         for i = 1:N
