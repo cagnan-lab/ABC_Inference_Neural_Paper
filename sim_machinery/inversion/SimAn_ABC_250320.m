@@ -40,8 +40,8 @@ end
 pOrg = p; % Record prior parameters.
 
 % Set Fixed Annealing Parameters
-eps_prior = -100; % prior eps (needed for gradient approximation);
-eps_exp = -80;
+eps_prior = -18; % prior eps (needed for gradient approximation);
+eps_exp = -12;
 eps_act = eps_prior;
 delta_act = 0.05;
 % Compute indices of parameters to be optimized

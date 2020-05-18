@@ -1,4 +1,4 @@
-function [F feat_out wflag meanconf] = constructGenCrossMatrix(dataS,chloc_name,chlist,fsamp,N,R)
+function [F feat_out wflag meanconf] = constructGenCrossMatrix(dataS,datinds,fsamp,N,R)
 if isempty(N)
     N = floor(fsamp/R.obs.csd.df);
 end
@@ -10,12 +10,13 @@ wflag = 0;
 
 % Construct NPD matrix from data - take mean across channel replicates
 O = numel(R.condnames);
+xcsd = nan(O,numel(R.siminds),numel(R.siminds),4,numel(R.frqz)); %initialize with empties
 for C = 1:O
     % Compute the CrossSpectral Density for Everything
     [csdMaster,fMaster] = cpsd(dataS{C}',dataS{C}',hanning(256),[],256,256,'mimo');
     
-    for chI = 1:size(chloc_name,2)
-        for chJ = 1:size(chloc_name,2)
+    for chI = datinds
+        for chJ = datinds
             if chI == chJ
                 % Your Univariate Measure
                 Pxy = squeeze(csdMaster(:,chJ,chI));
@@ -23,7 +24,7 @@ for C = 1:O
                 
                 F_scale = R.frqz;
                 
-                if nargin>5
+                if nargin>4
                     Pxy = interp1(F,Pxy,F_scale,'pchip');
                 else
                     Pxy =  Pxy(F>4);
@@ -71,7 +72,7 @@ for C = 1:O
                 
                 F_scale = R.frqz;
                 F_scale(isnan(F_scale)) = [];
-                if nargin>5
+                if nargin>4
                     Pxy = interp1(F,Pxy,F_scale,'pchip');
                 else
                     Pxy =  Pxy(F>4);
@@ -100,8 +101,8 @@ end
 
 if R.obs.trans.normcat == 1
     % Normalize each component by concatanating the conditions
-    for chI = 1:size(chloc_name,2)
-        for chJ = 1:size(chloc_name,2)
+    for chI = 1:numel(datinds)
+        for chJ = 1:numel(datinds)
             Xd = xcsd(:,chJ,chI,1:4,:); %here you select both conditions
             XM = mean(Xd(:));
             XV = std(Xd(:));
