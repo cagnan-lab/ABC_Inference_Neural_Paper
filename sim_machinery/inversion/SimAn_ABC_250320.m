@@ -40,8 +40,8 @@ end
 pOrg = p; % Record prior parameters.
 
 % Set Fixed Annealing Parameters
-eps_prior = -8; % prior eps (needed for gradient approximation);
-eps_exp = -6;
+eps_prior = -100; % prior eps (needed for gradient approximation);
+eps_exp = -80;
 eps_act = eps_prior;
 delta_act = 0.05;
 % Compute indices of parameters to be optimized
@@ -287,19 +287,22 @@ while ii <= R.SimAn.searchMax
         tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
         R.IntP.tvec_obs = tvec_obs;
         try
-            for C = 1:numel(R.condnames)
-                ptrd(C) = subplot(2,2,C);
-                plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}');
-                
-                ptrl(C) =subplot(2,2,C*2);
-                plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}');
-                xlim  ([8 9])
+            if sum(isnan(xsims_rep{1}{1}))==0
+                for C = 1:numel(R.condnames)
+                    ptrd(C) = subplot(2,2,C);
+                    plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}' - (1.5e-7.*(0:3)));
+                    
+                    ptrl(C) =subplot(2,2,C*2);
+                    plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}' - (1.5e-7.*(0:3)));
+                    xlim  ([8 9])
+                end
+                linkaxes(ptrd,'x'); %xlim([10 20])
+                linkaxes(ptrl,'x'); %xlim([10 20])
+                xlabel('Time (s)'); ylabel('Amplitude')
+                legend(R.chsim_name)
+                drawnow;shg
             end
-            linkaxes(ptrd,'x'); %xlim([10 20])
-            linkaxes(ptrl,'x'); %xlim([10 20])
-            xlabel('Time (s)'); ylabel('Amplitude')
-            legend(R.chsim_name)
-            drawnow;shg
+            set(gcf,'Position',[ 680         281        1100         697])
         end
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
