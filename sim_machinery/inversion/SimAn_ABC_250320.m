@@ -100,6 +100,7 @@ while ii <= R.SimAn.searchMax
         end % End of batch replicates
         
         % Retrieve fits
+        
         r2loop = [ACCrep{:}];
         % Delete failed simulations
         r2loop(r2loop==1) = -inf;
@@ -327,7 +328,7 @@ while ii <= R.SimAn.searchMax
     end
     
     
-    if (abs(delta_act) < R.SimAn.convIt.dEps) && RFLAG
+    if (abs(delta_act) < R.SimAn.convIt.dEps) || RFLAG
         disp('Itry Exceeded: Convergence')
         saveSimABCOutputs(R,Mfit,m,parBank)
         if R.plot.flag == 1
