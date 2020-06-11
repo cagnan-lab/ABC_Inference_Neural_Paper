@@ -13,7 +13,7 @@ O = numel(R.condnames);
 xcsd = nan(O,numel(R.siminds),numel(R.siminds),4,numel(R.frqz)); %initialize with empties
 for C = 1:O
     % Compute the CrossSpectral Density for Everything
-    [csdMaster,fMaster] = cpsd(dataS{C}',dataS{C}',hanning(256),[],256,256,'mimo');
+    [csdMaster,fMaster] = cpsd(dataS{C}',dataS{C}',hanning(2^N),[],2^N,fsamp,'mimo');
     
     for chI = datinds
         for chJ = datinds
@@ -25,7 +25,7 @@ for C = 1:O
                 F_scale = R.frqz;
                 
                 if nargin>4
-                    Pxy = interp1(F,Pxy,F_scale,'pchip');
+                    Pxy = interp1(F,Pxy,F_scale,R.obs.trans.interptype);
                 else
                     Pxy =  Pxy(F>4);
                 end
@@ -106,6 +106,7 @@ if R.obs.trans.normcat == 1
             Xd = xcsd(:,chJ,chI,1:4,:); %here you select both conditions
             XM = mean(Xd(:));
             XV = std(Xd(:));
+            Xd = xcsd(:,chJ,chI,1:4,:); %here you select both conditions
             xcsd(:,chJ,chI,1:4,:) = (Xd)./XV; % Rescale
         end
     end

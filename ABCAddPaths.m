@@ -22,7 +22,9 @@ switch getenv('computername')
         projpath = projpath;
         madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
         spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
-        R.path.datapath = 'C:\DATA\Shenghong_Tremor';
+        R.path.datapath_shenghong = 'C:\DATA\Shenghong_Tremor';
+        R.path.datapath_pedrosa = 'C:\DATA\DP_Tremor_ThalamoMuscular\';
+
 end
 
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])

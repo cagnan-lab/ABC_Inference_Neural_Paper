@@ -47,6 +47,11 @@ for C = 1:O
                 xlim([min(R.frqz) 35]); %max(R.frqz)])
                 axis square
                 %         ylim([-0.03 0.03])
+                if i==1
+                    title(R.chsim_name{j})
+                elseif j == 1
+                    ylabel(R.chsim_name{i})
+                end
             end
         end
     end
