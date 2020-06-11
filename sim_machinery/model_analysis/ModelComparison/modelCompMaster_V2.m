@@ -16,7 +16,7 @@ catch
 end
 
 %% Main Loop
-for modID = 4; %modlist
+for modID = modlist
     load([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
     permMod = [];
     if ~any(intersect(WML,modID))
