@@ -23,20 +23,9 @@ if ~isempty(list)
     if strncmp(R.data.datatype,'CSD',3)
         partlabs ={'Abs','Imag','Real'}; msr = 'CSD';
         
-        CSD_mean(:,:,:,1) = mean(real(CSD_bank),4);
-        % CSD_std(:,:,:,1)  = std(real(CSD_bank),1,4);]
-        CSD_std(:,:,:,1,1)  = prctile(real(CSD_bank),25,4);
-        CSD_std(:,:,:,2,1)  = prctile(real(CSD_bank),75,4);
-        
-        CSD_mean(:,:,:,2) = mean(imag(CSD_bank),4);
-        % CSD_std(:,:,:,2)  = std(imag(CSD_bank),1,4);
-        CSD_std(:,:,:,1,2)  = prctile(imag(CSD_bank),25,4);
-        CSD_std(:,:,:,2,2)  = prctile(imag(CSD_bank),75,4);
-        
-        CSD_mean(:,:,:,3) = mean(abs(CSD_bank),4);
-        % CSD_std(:,:,:,3)  = std(abs(CSD_bank),1,4);
-        CSD_std(:,:,:,1,3)  = prctile(abs(CSD_bank),25,4);
-        CSD_std(:,:,:,2,3)  = prctile(abs(CSD_bank),75,4);
+        CSD_mean = prctile(CSD_bank,50,5);
+        CSD_std(:,:,:,:,1)  = prctile(CSD_bank,50,5)-prctile(CSD_bank,25,5); %std(CSD_bank,1,5); %prctile(CSD_bank,5,5); %
+        CSD_std(:,:,:,:,2)  = prctile(CSD_bank,75,5)-prctile(CSD_bank,50,5); %std(CSD_bank,1,5); %prctile(CSD_bank,5,5); %
     elseif strncmp(R.data.datatype,'NPD',3)
         partlabs ={'Instant','Forward','Backward'}; msr = 'NPD';
         CSD_mean = prctile(CSD_bank,50,5);
@@ -74,23 +63,35 @@ if ~isempty(list)
                 B = zeros(size(B));
                 alpval = 0;
             end
-
-            [hl, hp] = boundedline(F(:,lr),Y(:,lr),B(:,:,lr),'cmap',R.plot.cmap,'alpha','transparency',alpval);
+            
+            [hl, hp] = boundedline(F(:,lr),real(Y(:,lr)),real(B(:,:,lr)),'cmap',R.plot.cmap,'alpha','transparency',alpval);
             hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
             hl(1).LineStyle = '-';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
             if ~isequal(R.plot.confint,'none')
                 hout = outlinebounds(hl, hp);
                 set(hout(1),'LineWidth',1,'LineStyle','--'); %set(hout(2),'LineWidth',1);% set(hout(3),'LineWidth',1);
             end
+            if any(imag(Y(:)))
+                [hl, hp] = boundedline(F(:,lr),imag(Y(:,lr)),imag(B(:,:,lr)),'cmap',R.plot.cmap,'alpha','transparency',alpval);
+                hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
+                hl(1).LineStyle = '-';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
+                if ~isequal(R.plot.confint,'none')
+                    hout = outlinebounds(hl, hp);
+                    set(hout(1),'LineWidth',1,'LineStyle','--'); %set(hout(2),'LineWidth',1);% set(hout(3),'LineWidth',1);
+                end
+            end
             hold on
             for L = lr
-                dl = plot(R.data.feat_xscale,squeeze(R.data.feat_emp(C,i,j,L,:)),'color',[0 0 0],'LineWidth',1.5); hold on
+                dl = plot(R.data.feat_xscale,real(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5); hold on
+                if any(imag(Y(:)))
+                dl = plot(R.data.feat_xscale,imag(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5); hold on
+                end
             end
             if i == j
                 ylim([0 5])
                 ylabel('Power')
             else
-                ylim([0 0.5])
+%                 ylim([0 0.5])
                 ylabel(msr)
             end
             xlim([min(R.frqz) max(R.frqz)])
