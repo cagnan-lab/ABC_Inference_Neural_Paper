@@ -83,7 +83,6 @@ while ii <= R.SimAn.searchMax
             pnew = par{parl};
             %% Simulate New Data
             u = innovate_timeseries(R,m);
-            u{1} = u{1}.*sqrt(R.IntP.dt);
             [r2,pnew,feat_sim,xsims,xsims_gl] = computeSimData120319(R,m,u,pnew,0,0);
             % Adjust the score to account for set complexity
             
