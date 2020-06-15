@@ -1,4 +1,4 @@
-function modID = modelCompMaster(Rorg,modlist,WML)
+function modID = modelCompMaster_V2(Rorg,modlist,WML)
 if nargin>2
     save([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
 end
@@ -44,14 +44,14 @@ for modID = modlist
         % Load Options
         load([Rorg.path.rootn '\outputs\'  Rorg.out.tag '\' dagname '\R_' Rorg.out.tag '_' dagname  '.mat'])
         R = varo;
-
         %         R.rootn = ['C:\Users\Tim\Documents\Work\GIT\SimAnneal_NeuroModel\Projects\' R.projectn '\'];
         %         R.rootm = 'C:\Users\Tim\Documents\Work\GIT\SimAnneal_NeuroModel\sim_machinery';
-        
+        R.obs.trans.interptype = 'pchip'; 
+        warning('You chose pchip interpolation as a hack!')
         R.Mfit = A;
 %         R.Mfit.prior = prior;
         % load parbank?
-        load([R.path.rootn '\outputs\'  Rorg.out.tag '\'  dagname '\parBank_' Rorg.out.tag '_' dagname '.mat'])
+        load([Rorg.path.rootn '\outputs\'  Rorg.out.tag '\'  dagname '\parBank_' Rorg.out.tag '_' dagname '.mat'])
         parBank =  varo;
         R = setSimTime(R,32);
         

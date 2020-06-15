@@ -86,8 +86,9 @@ while ii <= R.SimAn.searchMax
             [r2,pnew,feat_sim,xsims,xsims_gl] = computeSimData120319(R,m,u,pnew,0,0);
             % Adjust the score to account for set complexity
             
-            r2rep(jj) = (R.SimAn.scoreweight(1)*r2);
-            ACCrep{jj} = (R.SimAn.scoreweight(1)*(r2)) - (R.SimAn.scoreweight(2)*R.Mfit.DKL);
+            [ACC R2w] = computeObjective(R,r2)
+            r2rep(jj) = R2w;
+            ACCrep{jj} = ACC;
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;
@@ -281,29 +282,7 @@ while ii <= R.SimAn.searchMax
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-        figure(4)
-        clf
-        tvec_obs = R.IntP.tvec;
-        tvec_obs(:,2:round(R.obs.brn*(1/R.IntP.dt))) = [];
-        R.IntP.tvec_obs = tvec_obs;
-        try
-            if sum(isnan(xsims_rep{1}{1}))==0
-                for C = 1:numel(R.condnames)
-                    ptrd(C) = subplot(2,2,C);
-                    plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}' - (1.5e-7.*(0:3)));
-                    
-                    ptrl(C) =subplot(2,2,C*2);
-                    plot(repmat(R.IntP.tvec_obs,size(xsims_rep{1}{C},1),1)',xsims_rep{1}{C}' - (1.5e-7.*(0:3)));
-                    xlim  ([8 9])
-                end
-                linkaxes(ptrd,'x'); %xlim([10 20])
-                linkaxes(ptrl,'x'); %xlim([10 20])
-                xlabel('Time (s)'); ylabel('Amplitude')
-                legend(R.chsim_name)
-                drawnow;shg
-            end
-            set(gcf,'Position',[ 680         281        1100         697])
-        end
+
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')

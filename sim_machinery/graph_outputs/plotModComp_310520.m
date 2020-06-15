@@ -52,7 +52,7 @@ for modID = 1:numel(R.modcomp.modN)
         plot(x_values,y,'LineWidth',2)
         
         r2repc = r2rep; % cut-off (for plotting)
-        r2repc(r2repc<prctile(r2repc,15)) = []; % cut-off lower outliers (for plotting)
+%         r2repc(r2repc<prctile(r2repc,15)) = []; % cut-off lower outliers (for plotting)
         r2repSave{modID} = (r2repc);
         
         %         figure(1)

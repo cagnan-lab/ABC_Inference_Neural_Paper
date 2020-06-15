@@ -11,6 +11,7 @@ eps = R.analysis.modEvi.eps; % temporary (calculated later from whole model fami
 % parOptBank = parOptBank(:,parOptBank(end,:)>eps);
 %% Compute KL Divergence
 [KL DKL] = KLDiv(R,p,m,1);
+R.Mfit.DKL = DKL;
 N = R.analysis.modEvi.N;
 
 if R.analysis.BAA.flag == 0
@@ -68,10 +69,11 @@ while wfstr(end)>0
         u = innovate_timeseries(R,m);
         u{1} = u{1}.*sqrt(R.IntP.dt);
         [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData120319(R,m,u,pnew,0);
-        
+        [ACC R2w] = computeObjective(R,r2)
         %     R.plot.outFeatFx({},{feat_sim},R.data.feat_xscale,R,1)
         wfstr(jj) = any(wflag);
         r2rep{jj} = r2;
+        accrep{jj} = ACC;
         par_rep{jj} = pnew;
         feat_rep{jj} = feat_sim;
         disp(jj); %
@@ -93,6 +95,7 @@ permMod.par_rep = par_rep;
 permMod.feat_rep = feat_rep;
 permMod.DKL = DKL;
 permMod.KL = KL;
+permMod.ACCrep = accrep;
 xsimMod = xsims_rep;
 permMod.MAP = spm_unvec(median(base,2),p);
 [a b] = max([r2rep{:}]);
