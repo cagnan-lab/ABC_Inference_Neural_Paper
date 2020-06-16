@@ -18,6 +18,7 @@ switch getenv('computername')
         projpath = projpath;
         madpath = 'D:\MATLAB ADDONS';
         spmpath = 'D:\GITHUB\spm12-master';
+        R.path.datapath = 'D:\Data\Shenghong_Tremor';
     case 'DESKTOP-1QJTIMO'
         gitpath = 'C:\Users\Tim West\Documents\GitHub';
         projpath = projpath;
