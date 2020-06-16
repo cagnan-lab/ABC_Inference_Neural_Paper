@@ -1,4 +1,4 @@
-function [R,m,permMod,xsimMod] = getSimModelData_v4(Rorg,modID,simtime,allsimchan)
+function [R,m,permMod,xsimMod] = getSimModelData_160620(Rorg,modID,simtime,allsimchan)
 if nargin<4
     allsimchan = 0;
 end
@@ -8,7 +8,7 @@ for pn = 1:numel(modID)
     rng(2223) % Ensure random elements are the same
     % Load Model Data
     Rorg.out.dag = sprintf([Rorg.out.tag '_M%.0f'],modID);
-    [R,m,p,parBank] = loadABCData_v2(Rorg);
+    [R,m,p,parBank] = loadABCData_160620(Rorg);
     R.analysis.modEvi.eps = parBank(end,R.SimAn.minRank);
     parOptBank = parBank(1:end,1:2^10);
     R.parOptBank = parOptBank;
@@ -23,5 +23,5 @@ for pn = 1:numel(modID)
     R.Mfit.prior = R.Mfit;
     warning('getSimModelData_v3 is using legacy setup!')
     % With Hyperdirect
-    [permMod{pn} xsimMod{pn}] = modelProbs(m.x,m,p,R);
+    [permMod{pn} xsimMod{pn}] = modelProbs_160620(m.x,m,p,R);
 end

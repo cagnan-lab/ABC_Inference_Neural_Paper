@@ -4,12 +4,10 @@ if nargin<6
 end
 if isempty(uc)
         uc = innovate_timeseries(R,m);
-    uc{1} = uc{1}.*sqrt(R.IntP.dt);
 end
 if simtime ~= 0
     R = setSimTime(R,simtime);
     uc = innovate_timeseries(R,m);
-    uc{1} = uc{1}.*sqrt(R.IntP.dt);
 end
 wflag = 0;
 

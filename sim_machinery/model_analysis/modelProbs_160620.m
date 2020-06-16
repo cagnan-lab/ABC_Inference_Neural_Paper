@@ -47,7 +47,6 @@ elseif R.analysis.BAA.flag
             par = [];
             par{1} = spm_unvec(base(:,end),p);
         case 'UQ'
-            %             nmrse = base(end-1,:);
             nmrse = base(end,:);
             X = base(:,nmrse>prctile(nmrse,75));
             par = [];
@@ -59,15 +58,14 @@ end
 figure(5)
 pnew = par{1};
 u = innovate_timeseries(R,m);
-[r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData120319(R,m,u,pnew,0,1);
+[r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData_160620(R,m,u,pnew,0,1);
 wfstr = ones(1,N);
 while wfstr(end)>0
     parfor (jj = 1:N, parforArg)
         %     parfor jj = 1:N
         pnew = par{jj};
         u = innovate_timeseries(R,m);
-        u{1} = u{1}.*sqrt(R.IntP.dt);
-        [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData120319(R,m,u,pnew,0);
+        [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData_160620(R,m,u,pnew,0);
         [ACC R2w] = computeObjective(R,r2)
         %     R.plot.outFeatFx({},{feat_sim},R.data.feat_xscale,R,1)
         wfstr(jj) = any(wflag);

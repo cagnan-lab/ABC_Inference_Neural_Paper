@@ -1,4 +1,4 @@
-function [Rout,m,p,parBank] = loadABCData_v2(R)
+function [Rout,m,p,parBank] = loadABCData_160620(R)
 % Load Options
 load([R.path.rootn '\outputs\' R.path.projectn '\' R.out.tag '\' R.out.dag '\R_' R.out.tag '_' R.out.dag '.mat'])
 Rout = varo;
