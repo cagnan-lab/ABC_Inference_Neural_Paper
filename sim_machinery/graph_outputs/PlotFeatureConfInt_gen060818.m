@@ -63,35 +63,45 @@ if ~isempty(list)
                 B = zeros(size(B));
                 alpval = 0;
             end
-            
-            [hl, hp] = boundedline(F(:,lr),real(Y(:,lr)),real(B(:,:,lr)),'cmap',R.plot.cmap,'alpha','transparency',alpval);
-            hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
-            hl(1).LineStyle = '-';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
-            if ~isequal(R.plot.confint,'none')
-                hout = outlinebounds(hl, hp);
-                set(hout(1),'LineWidth',1,'LineStyle','--'); %set(hout(2),'LineWidth',1);% set(hout(3),'LineWidth',1);
-            end
-            if any(imag(Y(:)))
+            if R.plot.cmplx
+                [hl, hp] = boundedline(F(:,lr),real(Y(:,lr)),real(B(:,:,lr)),'cmap',R.plot.cmap,'alpha','transparency',alpval);
+                hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
+                hl(1).LineStyle = '-';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
+                
                 [hl, hp] = boundedline(F(:,lr),imag(Y(:,lr)),imag(B(:,:,lr)),'cmap',R.plot.cmap,'alpha','transparency',alpval);
+                hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
+                hl(1).LineStyle = '--';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
+                if ~isequal(R.plot.confint,'none')
+                    hout = outlinebounds(hl, hp);
+                    set(hout(1),'LineWidth',1,'LineStyle','--'); %set(hout(2),'LineWidth',1);% set(hout(3),'LineWidth',1);
+                end
+                
+                hold on
+                for L = lr
+                    dl = plot(R.data.feat_xscale,real(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5); hold on
+                    dl = plot(R.data.feat_xscale,imag(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5,'LineStyle','--'); hold on
+                end
+                
+                
+            else
+                [hl, hp] = boundedline(F(:,lr),abs(Y(:,lr)),abs(B(:,:,lr)),'cmap',R.plot.cmap,'alpha','transparency',alpval);
                 hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
                 hl(1).LineStyle = '-';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
                 if ~isequal(R.plot.confint,'none')
                     hout = outlinebounds(hl, hp);
                     set(hout(1),'LineWidth',1,'LineStyle','--'); %set(hout(2),'LineWidth',1);% set(hout(3),'LineWidth',1);
                 end
-            end
-            hold on
-            for L = lr
-                dl = plot(R.data.feat_xscale,real(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5); hold on
-                if any(imag(Y(:)))
-                dl = plot(R.data.feat_xscale,imag(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5); hold on
+                
+                hold on
+                for L = lr
+                    dl = plot(R.data.feat_xscale,abs(squeeze(R.data.feat_emp(C,i,j,L,:))),'color',[0 0 0],'LineWidth',1.5); hold on
                 end
             end
             if i == j
                 ylim([0 5])
                 ylabel('Power')
             else
-%                 ylim([0 0.5])
+                %                 ylim([0 0.5])
                 ylabel(msr)
             end
             xlim([min(R.frqz) max(R.frqz)])
