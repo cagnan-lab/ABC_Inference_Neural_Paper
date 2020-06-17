@@ -1,4 +1,4 @@
-function modID = modelCompMaster_V2(Rorg,modlist,WML)
+function modID = modelCompMaster_160620(Rorg,modlist,WML)
 if nargin>2
     save([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
 end

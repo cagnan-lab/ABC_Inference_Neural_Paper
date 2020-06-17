@@ -313,7 +313,7 @@ while ii <= R.SimAn.searchMax
             H(1) = figure(1);
             H(2) = figure(2);
             H(3) = figure(3);
-            saveFigure(H,[R.path.rootn 'outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\convergenceFigures'])
+            saveFigure(H,[R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\convergenceFigures'])
         end
         return
     end
