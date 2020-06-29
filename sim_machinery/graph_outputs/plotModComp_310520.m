@@ -7,8 +7,8 @@ if nargin<2
 end
 %% First get probabilities so you can compute model space epsilon
 for modID = 1:numel(R.modcomp.modN)
-    dagname = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
-    load([R.path.rootn '\outputs\' R.out.tag '\' dagname '\modeProbs_' R.out.tag '_' dagname '.mat'])
+    R.out.dag = sprintf([R.out.tag '_M%.0f'],modID);
+    load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
     A = varo; %i.e. permMod
     if ~isempty(A)
         r2rep = [A.r2rep{:}];
@@ -38,8 +38,8 @@ end
 p = 0;
 mni = 0;
 for modID = 1:numel(R.modcomp.modN)
-    dagname = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
-    load([R.path.rootn '\outputs\' R.out.tag '\' dagname '\modeProbs_' R.out.tag '_' dagname '.mat'])
+     R.out.dag = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
+    load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
     A = varo; %i.e. permMod
     avStruc = averageCell(A.par_rep);
     if ~isempty(A)
@@ -102,7 +102,7 @@ end
 %     subplot(4,4,p); ylim([0 0.7])
 % end
 % Save the model parameter average
-save([R.path.rootn '\outputs\' R.out.tag '\' R.out.tag '_model_parameter_averages'],'parMean')
+save([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.tag '_model_parameter_averages'],'parMean')
 
 set(gcf,'Position',[680   112   976   893])
 

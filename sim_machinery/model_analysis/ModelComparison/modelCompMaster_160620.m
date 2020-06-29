@@ -1,59 +1,58 @@
-function modID = modelCompMaster_160620(Rorg,modlist,WML)
+function modID = modelCompMaster_160620(R,modlist,WML)
 if nargin>2
-    save([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
+    save([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\WorkingPermModList'],'WML')
 end
+        closeMessageBoxes
 
 %% Setup for parallelisation (multiple MATLAB sessions)
 try
-    load([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'])
+    load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\WorkingPermModList'])
     disp('Loaded Perm Mod List!!')
     % If concatanating to previously computed model comp structure
 catch
     WML = [];
-    mkdir([Rorg.path.rootn '\outputs\' Rorg.out.tag ]);
-    save([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
+    save([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\WorkingPermModList'],'WML')
     disp('Making Perm Mod List!!')
 end
 
 %% Main Loop
 for modID = modlist
-    load([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
+    load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\WorkingPermModList'],'WML')
     permMod = [];
     if ~any(intersect(WML,modID))
         WML = [WML modID];
-        save([Rorg.path.rootn '\outputs\' Rorg.out.tag '\WorkingPermModList'],'WML')
+        save([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\WorkingPermModList'],'WML')
         disp('Writing to PermMod List!!')
         fprintf('Now Computing Probabilities for Model %.0f',modID)
         f = msgbox(sprintf('Probabilities for Model %.0f',modID));
-        %         dagname = sprintf('NPD_InDrt_ModCompRed_M%.0f',modID);
-        if Rorg.comptype == 1
-            dagname = sprintf([Rorg.out.tag '_M%.0f'],modID);
-            SimMod = modID;
-        elseif Rorg.comptype == 2
-            SimData = Rorg.tmp.confmat(1,modID);
-            SimMod = Rorg.tmp.confmat(2,modID);
-            dagname = sprintf('NPD_STN_GPe_ConfMat_DataM%.0f_ParM%.0f',SimData,SimMod); % 'All Cross'
-        end
+
+        % Get Model Name
+        R.out.dag = sprintf([R.out.tag '_M%.0f'],modID);
+        
+        % Load Config
+        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\R_' R.out.tag '_' R.out.dag  '.mat'])
+        
+        % Replace with new version but maintain paths
+        tmp = varo;
+        tmp.path = R.path;
+        tmp.plot = R.plot;
+        R  = tmp;
+        
         % Load Model
-        load([Rorg.path.rootn '\outputs\' Rorg.out.tag '\' dagname '\modelspec_' Rorg.out.tag '_'  dagname '.mat'])
+        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modelspec_' R.out.tag '_'  R.out.dag '.mat'])
         m = varo;
+        
         % load modelfit
-        load([Rorg.path.rootn '\outputs\'  Rorg.out.tag '\' dagname '\modelfit_' Rorg.out.tag '_' dagname '.mat'])
-        A = varo;
-        p = A.BPfit;
-        % Load Options
-        load([Rorg.path.rootn '\outputs\'  Rorg.out.tag '\' dagname '\R_' Rorg.out.tag '_' dagname  '.mat'])
-        R = varo;
-        %         R.rootn = ['C:\Users\Tim\Documents\Work\GIT\SimAnneal_NeuroModel\Projects\' R.projectn '\'];
-        %         R.rootm = 'C:\Users\Tim\Documents\Work\GIT\SimAnneal_NeuroModel\sim_machinery';
-        R.obs.trans.interptype = 'pchip'; 
-        warning('You chose pchip interpolation as a hack!')
-        R.Mfit = A;
-%         R.Mfit.prior = prior;
+        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modelfit_' R.out.tag '_' R.out.dag '.mat'])
+        mfit = varo;
+        R.Mfit = mfit;
+        p = mfit.BPfit;
+        
         % load parbank?
-        load([Rorg.path.rootn '\outputs\'  Rorg.out.tag '\'  dagname '\parBank_' Rorg.out.tag '_' dagname '.mat'])
+        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\parBank_' R.out.tag '_' R.out.dag '.mat'])
         parBank =  varo;
         R = setSimTime(R,32);
+
         
         R.analysis.modEvi.eps = parBank(end,R.SimAn.minRank);
         R.analysis.BAA.flag = 0; % Turn off BAA flag (time-locked analysis)
@@ -64,12 +63,12 @@ for modID = modlist
             R.obs.gainmeth = R.obs.gainmeth(1);
             R.obs.trans.gauss = 0;
             figure(modID);
-            R.analysis.modEvi.N = 256;
-            permMod = modelProbs(m.x,m,p,R);
+            R.analysis.modEvi.N = 512;
+            permMod = modelProbs_160620(m.x,m,p,R);
         else
             permMod = [];
         end
-        saveMkPath([Rorg.path.rootn '\outputs\'  Rorg.out.tag '\'  dagname '\modeProbs_' Rorg.out.tag '_' dagname '.mat'],permMod)
+        saveMkPath([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_' R.out.dag '.mat'],permMod)
         pause(10)
         closeMessageBoxes
         close all

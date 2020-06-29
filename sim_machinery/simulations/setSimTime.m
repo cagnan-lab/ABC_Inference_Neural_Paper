@@ -7,7 +7,7 @@ fsamp = 1/R.IntP.dt;
 R.obs.SimOrd = (log2(fsamp/(2*R.obs.csd.df))); % order of NPD for simulated data
 % R.IntP.dt = .0005;
 R.IntP.tend = (N*(2^(R.obs.SimOrd)))/fsamp;
-R.IntP.nt = R.IntP.tend/R.IntP.dt;
+R.IntP.nt = floor(R.IntP.tend/R.IntP.dt);
 dfact = fsamp/(2*2^(R.obs.SimOrd));
 R.IntP.tvec = linspace(0,R.IntP.tend,R.IntP.nt);
 

@@ -25,3 +25,5 @@ for pn = 1:numel(modID)
     % With Hyperdirect
     [permMod{pn} xsimMod{pn}] = modelProbs_160620(m.x,m,p,R);
 end
+
+R.path = Rorg.path;

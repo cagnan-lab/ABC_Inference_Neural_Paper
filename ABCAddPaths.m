@@ -1,4 +1,4 @@
-function R = ABCAddPaths(projpath,routname)
+function R = ABCAddPaths(repopath,routname)
 switch getenv('computername')
     case 'SFLAP-2'
         usname = 'Tim'; gitpath = '\Documents\Work\GIT'; madpath = 'MATLAB_ADDONS';
@@ -15,20 +15,21 @@ switch getenv('computername')
         
     case 'TIM_PC'
         gitpath = 'D:\GITHUB';
-        projpath = projpath;
         madpath = 'D:\MATLAB ADDONS';
         spmpath = 'D:\GITHUB\spm12-master';
         R.path.datapath = 'D:\Data\Shenghong_Tremor';
     case 'DESKTOP-1QJTIMO'
         gitpath = 'C:\Users\Tim West\Documents\GitHub';
-        projpath = projpath;
         madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
         spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
         R.path.datapath_shenghong = 'C:\DATA\Shenghong_Tremor';
         R.path.datapath_pedrosa = 'C:\DATA\DP_Tremor_ThalamoMuscular\';
-
+        R.path.datapath = 'C:\Users\Tim West\OneDrive - Nexus365\Meaghan_project\Meaghan_stuff';
 end
-
+R.path.root = [repopath];
+R.path.rootn = R.path.root; 
+R.path.projectn = routname;
+R.path.projpath =  [R.path.root '\Projects\' R.path.projectn];
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])
 % addpath(['C:\Users\' usname '\Documents\' madpath '\aboxplot'])
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ATvDFA-package'])
@@ -61,15 +62,15 @@ if ~onPath; addpath(spmpath); spm eeg; close all; end
 addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\ABC_dependencies']))
 addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
 addpath(genpath([gitpath '\Spike-smr-reader']))
-addpath(genpath([projpath '\data']));
-addpath(genpath([projpath '\model_fx']));
-addpath(genpath([projpath '\ModelSpecs']));
-addpath(genpath([projpath '\priors']));
-addpath(genpath([projpath '\plotting']));
-addpath(genpath([projpath '\routine\' routname]))
-addpath(genpath([projpath '\external_dependencies']))
+addpath(genpath([repopath '\data']));
+addpath(genpath([repopath '\model_fx']));
+addpath(genpath([repopath '\ModelSpecs']));
+addpath(genpath([repopath '\priors']));
+addpath(genpath([repopath '\plotting']));
+addpath(genpath([repopath '\routine\' routname]))
+addpath(genpath([repopath '\statsfx']))
+addpath(genpath([repopath '\external_dependencies']))
+addpath(genpath([repopath '\external_dependencies']))
+addpath(genpath(R.path.projpath))
 
 
-R.path.root = [projpath];
-R.path.rootn = R.path.root; 
-R.path.projectn = routname;

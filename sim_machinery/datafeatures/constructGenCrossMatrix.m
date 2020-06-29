@@ -6,7 +6,7 @@ if ~isfield(R.obs,'logscale')
     R.obs.logscale = 1;
 end
 wflag = 0;
-
+N = fix(N); %Ensure integer
 
 % Construct NPD matrix from data - take mean across channel replicates
 O = numel(R.condnames);

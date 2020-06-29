@@ -39,7 +39,7 @@ catch
     disp('Making Mod List!!')
 end
 
-for modID = 10;% 12:-1:1
+for modID = 1:10;% 12:-1:1
     if modID>= 7
         R.obs.LF = [1 1 1 1 1 1].*10; % Fit visually and for normalised data
         R.chsim_name = {'MMC','STR','GPE','STN','GPI','THAL'};
