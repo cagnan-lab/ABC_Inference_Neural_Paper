@@ -17,60 +17,37 @@ for modID = 1:numel(R.modcomp.modN)
     end
 end
 
+% This gets the joint space epsilon that you can use to compute exceedence
+% probability
 prct = 50;
-% r2med = median(vertcat(r2bank{:}),2);
-% find(r2med>prctile(r2med,25))
-% r2bankcat = horzcat(r2bank{[1:4 7:10]});
 r2bankcat = horzcat(r2bank{:});
-
 R.modcomp.modEvi.epspop = prctile(r2bankcat,prct); % threshold becomes median of model fits
-% Adjust the acceptance threshold if any models have no rejections
-exc = ones(1,numel(R.modcomp.modN));
-while any(exc==1)
-    r2bankcat = horzcat(r2bank{:});
-    R.modcomp.modEvi.epspop = prctile(r2bankcat,prct); % threshold becomes median of model fits
-    for modID = 1:numel(R.modcomp.modN)
-        exc(modID) = sum(r2bank{modID}>R.modcomp.modEvi.epspop)/size(r2bank{modID},2);
-    end
-    prct = prct+1;
-end
 
-p = 0;
-mni = 0;
+p = 0; % plot counter
+mni = 0; % Model counter
 for modID = 1:numel(R.modcomp.modN)
-     R.out.dag = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
+    shortlab{modID} = sprintf('M%.f',R.modcomp.modN(modID)); % Make model label
+    
+    % Load in the precompute model iterations
+    R.out.dag = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
     load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
     A = varo; %i.e. permMod
-    avStruc = averageCell(A.par_rep);
+    
     if ~isempty(A)
+        % save the model accuracies
         r2rep = [A.r2rep{:}];
         r2rep(isnan(r2rep) | isinf(r2rep)) = [];
-        pd = fitdist(r2rep','normal');
-        x_values = -1:0.01:1;
-        y = pdf(pd,x_values);
-        figure(1)
-        plot(x_values,y,'LineWidth',2)
-        
-        r2repc = r2rep; % cut-off (for plotting)
-%         r2repc(r2repc<prctile(r2repc,15)) = []; % cut-off lower outliers (for plotting)
-        r2repSave{modID} = (r2repc);
-        
-        %         figure(1)
-        %         histogram(r2rep,-1:0.1:1);
-        hold on
-        
-        KL(modID) = sum(A.KL(~isnan(A.KL)));
-        DKL(modID) = sum(A.DKL);
+        r2repSave{modID} = r2rep;
+        % now get the exceedence probability
         pmod(modID) =sum(r2rep>R.modcomp.modEvi.epspop) / size(r2rep,2);
+        % parameter divergences
+        KL(modID) = sum(A.KL(~isnan(A.KL))); % sum across all (marginal distributions)
+        DKL(modID) = sum(A.DKL); % total joint space KL divergence
         
-        h = figure(10);
-        R.plot.cmap = cmap(modID,:);
-        flag = 0;
-        
-        list = find([A.r2rep{:}]>R.modcomp.modEvi.epspop);
+        % Recover MAP parameters
+        list = find([A.r2rep{:}]);
         if numel(list)>2
             parcat = [];
-            
             for i = list
                 parcat(:,i) = spm_vec(A.par_rep{i});
             end
@@ -78,40 +55,34 @@ for modID = 1:numel(R.modcomp.modN)
         else
             parMean{modID} = A.par_rep{1};
         end
+        
+        %% Plot Data Features with Bayesian confidence intervals
+        h = figure(10);
+        R.plot.cmap = cmap(modID,:);
+        flag = 0;
+        
         if ismember(modID,R.modcompplot.NPDsel)
             p = p +1;
-            [hl(p), hp, dl, flag] = PlotFeatureConfInt_gen060818(R,A,h);
+            [hl(p), hp, dl, flag] = PlotFeatureConfInt_gen170620(R,A,h);
         end
         % hl(modID) = plot(1,1);
         if ~flag
             mni = mni +1;
-            longlab{mni} = sprintf('Model %.f',R.modcomp.modN(modID));
         end
     else
         r2repSave{modID} = nan(size(r2rep));
     end
-    
-    shortlab{modID} = sprintf('M%.f',R.modcomp.modN(modID));
-    %     pause(2)
-    %     figure(10)
-    %     h = findobj(gca,'Type','line');
-    %     legend(h([size(h,1):-2:1 1]),longlab)
-    
 end
-% for p = [2 3 4 7 8 12]
-%     subplot(4,4,p); ylim([0 0.7])
-% end
 % Save the model parameter average
 save([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.tag '_model_parameter_averages'],'parMean')
-
 set(gcf,'Position',[680   112   976   893])
 
-hl(end+1) = dl;
-longlab{end+1} = 'Data';
+
+%% Now Plot Results of Model Comparison
 figure(2)
 subplot(4,1,1)
 violin(r2repSave,'facecolor',cmap,'medc','k:','xlabel',shortlab); %,...
-    %'bw',[0.025 0.1 0.1]); % 0.025 0.2 0.2 0.025 0.025 0.025 0.025 0.2 0.2]);
+%'bw',[0.025 0.1 0.1]); % 0.025 0.2 0.2 0.025 0.025 0.025 0.025 0.2 0.2]);
 hold on
 plot([0 numel(R.modcomp.modN)+1],[R.modcomp.modEvi.epspop R.modcomp.modEvi.epspop],'k--')
 xlabel('Model'); ylabel('NMRSE'); grid on;

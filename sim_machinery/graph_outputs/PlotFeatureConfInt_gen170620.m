@@ -6,9 +6,6 @@ if ~isfield(R.plot,'cmap')
     R.plot.cmap = linspecer(12);
 end
 CSD_data_n = permMod.feat_rep{1};
-% list = find([permMod.r2rep{:}]>-0.2,1)
-% list = find([permMod.r2rep{:}]>prctile([permMod.r2rep{:}],75));
-% list = find([permMod.r2rep{:}]>R.modcomp.modEvi.epspop);
 list = 1:numel(permMod.r2rep);
 C = size(CSD_data_n,1); N = size(CSD_data_n,2); M = size(CSD_data_n,3);O = size(CSD_data_n,4);
 for cond = 1:C
