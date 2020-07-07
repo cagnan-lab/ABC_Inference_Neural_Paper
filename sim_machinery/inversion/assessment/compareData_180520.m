@@ -6,10 +6,10 @@ switch R.data.datatype
         NPDsim  = sim_dat; % simulated
         for C = 1:numel(R.condnames)
             ic = 0;
-            for i = R.datinds
+            for i = R.siminds
                 ic = ic + 1;
                 jc = 0;
-                for j = R.datinds
+                for j = R.siminds
                      jc = jc + 1;
                     switch R.objfx.feattype
                         case 'complex'

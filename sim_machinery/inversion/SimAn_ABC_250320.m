@@ -1,5 +1,5 @@
 function [R,parBank] = SimAn_ABC_250320(R,p,m,parBank)
-%%%% SIMULATED ANNEALING for APROXIMATE BAYESIAN COMPUTATION for
+%%%% APROXIMATE BAYESIAN COMPUTATION for
 %%%% HIGH DIMENSIONAL DYNAMICAL MODELS
 % ---- 25/03/20---------------------------
 % This annealing function uses approximate Bayesian computation in order to
