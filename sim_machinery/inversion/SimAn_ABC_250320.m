@@ -282,7 +282,9 @@ while ii <= R.SimAn.searchMax
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-
+        figure(22)
+        plotTimeSeriesGen(xsims_rep{1},1./R.IntP.dt,R.chsim_name,R.condnames)
+        
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')

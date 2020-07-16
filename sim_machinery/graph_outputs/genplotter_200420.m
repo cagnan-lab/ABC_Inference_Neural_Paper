@@ -38,13 +38,16 @@ for C = 1:O
             for j = 1:M
                 k = k+1;
                 subplot(N,M,k)
-                
+                try
                 plot(F,squeeze(abs(NPD_sim_n(C,i,j,1,:))),'r--','linewidth',lwid); hold on
                 plot(F,squeeze(imag(NPD_sim_n(C,i,j,1,:))),'b--','linewidth',lwid);
+                end
+                try
                 plot(F,squeeze(abs(NPD_data_n(C,i,j,1,:))),'r','linewidth',2);
                 plot(F,squeeze(imag(NPD_data_n(C,i,j,1,:))),'b','linewidth',2);
+                end
                 xlabel('Hz'); ylabel('Power'); %title(sprintf('Ch %1.f Pxx',i))
-                xlim([min(R.frqz) 35]); %max(R.frqz)])
+                xlim([min(R.frqz) max(R.frqz)])
                 axis square
                 %         ylim([-0.03 0.03])
                 if i==1
