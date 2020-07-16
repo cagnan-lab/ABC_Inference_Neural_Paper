@@ -12,30 +12,48 @@ N = fix(N); %Ensure integer
 O = numel(R.condnames);
 xcsd = nan(O,numel(R.siminds),numel(R.siminds),4,numel(R.frqz)); %initialize with empties
 for C = 1:O
-    % Compute the CrossSpectral Density for Everything
-    [csdMaster,fMaster] = cpsd(dataS{C}',dataS{C}',hanning(2^N),[],2^N,fsamp,'mimo');
     
-    for chI = datinds
-        for chJ = datinds
-            if chI == chJ
-                % Your Univariate Measure
-                Pxy = squeeze(csdMaster(:,chJ,chI));
-                F = fMaster;
-                
-                F_scale = R.frqz;
-                
-                if nargin>4
-                    Pxy = interp1(F,Pxy,F_scale,R.obs.trans.interptype);
-                else
-                    Pxy =  Pxy(F>4);
+    switch R.data.datatype
+        case 'CSD'
+            dataX = dataS{C}(datinds,:)';
+            
+            % Compute the CrossSpectral Density for Everything
+            [csdMaster,fMaster] = cpsd(dataX,dataX,hanning(2^N),[],2^N,fsamp,'mimo');
+            
+        case 'NPD'
+            i = 0; 
+            for chI = datinds
+                i = i + 1;
+                j = 0;
+                for chJ = datinds
+                    j = j + 1;
+                    [f13,t,cl]=sp2a2_R2(squeeze(dataS{C}(chI,:))',squeeze(dataS{C}(chJ,:))',fsamp,N);
+                    fMaster = f13(:,1);
+                    if chI == chJ
+                        csdMaster(:,j,i) = 10.^(f13(:,2));
+                    else
+                        csdMaster(:,j,i) = f13(:,11)*R.obs.trans.npdscalar;
+                    end
                 end
+            end
+            
+    end
+    
+    for i = datinds
+        for j = datinds
+            if i == j
+                % Your Univariate Measure
+                Pxy = squeeze(csdMaster(:,j,i));
+                F_scale = fMaster;
+
                 if R.obs.trans.logdetrend == 1
                     Pxy(Pxy<0) = 1e-32;
+                    tailinds = (F_scale>68);
                     Pxy = log10(Pxy); F_scale = log10(F_scale);
-                    [xCalc yCalc b Rsq] = linregress(F_scale',Pxy');
-                    [dum bi] = intersect(F_scale,xCalc);
-                    Pxy = Pxy(1,bi)-yCalc';
-                    Pxy = 10.^Pxy; F_scale = 10.^(F_scale(bi));
+                    [dum1 dum2 b Rsq] = linregress(F_scale(tailinds),Pxy(tailinds));
+                    yCalc = [ones(length(F_scale),1) F_scale]*b;
+                    Pxy = Pxy-yCalc;
+                    Pxy = 10.^Pxy; F_scale = 10.^(F_scale);
                 else
                     Pxy(isnan(F_scale)) = [];
                     F_scale(isnan(F_scale)) = [];
@@ -48,10 +66,6 @@ for C = 1:O
                     Pxy = (Pxy-nanmean(Pxy))./nanstd(Pxy);
                 end
                 
-                if R.obs.trans.zerobase == 1
-                    Pxy = Pxy - min(Pxy);
-                end
-                
                 if R.obs.trans.gauss3 == 1
                     %                             Pxy = smoothdata(Pxy,'gaussian');
                     f = fit(F_scale',Pxy','gauss3');
@@ -62,21 +76,21 @@ for C = 1:O
                     gwid = R.obs.trans.gausSm/diff(F_scale(1:2)); % 10 Hz smoothing
                     Pxy = smoothdata(Pxy,'gaussian',gwid);
                 end
-                Pxy(isnan(Pxy)) = 0;
-                Pxy = Pxy; %.*tukeywin(length(Pxy),0.25)';
                 
-            elseif chI ~= chJ % Diagonal
-                % Your Functional Connectivity Metric
-                Pxy = squeeze(csdMaster(:,chJ,chI));
-                F = fMaster;
-                
-                F_scale = R.frqz;
-                F_scale(isnan(F_scale)) = [];
                 if nargin>4
-                    Pxy = interp1(F,Pxy,F_scale,'pchip');
+                    Pxy = interp1(F_scale,Pxy,R.frqz,R.obs.trans.interptype);
                 else
                     Pxy =  Pxy(F>4);
-                end
+                end               
+                
+                if R.obs.trans.zerobase == 1
+                    Pxy = Pxy - min(Pxy);
+                end                
+                                
+            elseif i ~= j % Diagonal
+                % Your Functional Connectivity Metric
+                Pxy = squeeze(csdMaster(:,j,i));
+                F_scale = fMaster;
                 
                 if R.obs.trans.norm == 1
                     Pxy = (Pxy-nanmean(Pxy))./nanstd(Pxy);
@@ -93,8 +107,14 @@ for C = 1:O
                     Pxy = smoothdata(Pxy,'lowess',gwid);
                 end
                 
+                if nargin>4
+                    Pxy = interp1(F_scale,Pxy,R.frqz,R.obs.trans.interptype);
+                else
+                    Pxy =  Pxy(F>4);
+                end
+              
             end
-            xcsd(C,chJ,chI,1:4,:) = repmat(Pxy,4,1);
+            xcsd(C,j,i,1:4,:) = repmat(Pxy,4,1);
         end
     end
 end
@@ -114,5 +134,5 @@ end
 
 
 feat_out = xcsd;
-F = F_scale;
+F = R.frqz;
 meanconf = [];

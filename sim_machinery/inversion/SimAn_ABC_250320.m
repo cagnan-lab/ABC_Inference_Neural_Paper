@@ -1,5 +1,5 @@
 function [R,parBank] = SimAn_ABC_250320(R,p,m,parBank)
-%%%% SIMULATED ANNEALING for APROXIMATE BAYESIAN COMPUTATION for
+%%%% APROXIMATE BAYESIAN COMPUTATION for
 %%%% HIGH DIMENSIONAL DYNAMICAL MODELS
 % ---- 25/03/20---------------------------
 % This annealing function uses approximate Bayesian computation in order to
@@ -282,7 +282,9 @@ while ii <= R.SimAn.searchMax
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-
+        figure(22)
+        plotTimeSeriesGen(xsims_rep{1},1./R.IntP.dt,R.chsim_name,R.condnames)
+        
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')

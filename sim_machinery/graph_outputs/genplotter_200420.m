@@ -38,13 +38,16 @@ for C = 1:O
             for j = 1:M
                 k = k+1;
                 subplot(N,M,k)
-                
+                try
                 plot(F,squeeze(abs(NPD_sim_n(C,i,j,1,:))),'r--','linewidth',lwid); hold on
                 plot(F,squeeze(imag(NPD_sim_n(C,i,j,1,:))),'b--','linewidth',lwid);
+                end
+                try
                 plot(F,squeeze(abs(NPD_data_n(C,i,j,1,:))),'r','linewidth',2);
                 plot(F,squeeze(imag(NPD_data_n(C,i,j,1,:))),'b','linewidth',2);
+                end
                 xlabel('Hz'); ylabel('Power'); %title(sprintf('Ch %1.f Pxx',i))
-                xlim([min(R.frqz) 35]); %max(R.frqz)])
+                xlim([min(R.frqz) max(R.frqz)])
                 axis square
                 %         ylim([-0.03 0.03])
                 if i==1
@@ -57,26 +60,3 @@ for C = 1:O
     end
     set(gcf,'Position',[380         235        1112         893])
 end
-%LABEL LOCATIONS
-% % Top row
-% labPos(:,1,1) = [0.182654676258993 0.938409854423292 0.0548561151079137 0.0313549832026876];
-% labPos(:,2,1) = [0.395100719424461 0.936326987681971 0.0548561151079137 0.0313549832026876];
-% labPos(:,3,1) = [0.603266187050362 0.93552071668533 0.0548561151079137 0.0313549832026876];
-% % labPos(:,4,1) = [0.7954964028777 0.935363941769317 0.0548561151079137 0.0313549832026876];
-%
-% % First Column
-% labPos(:,1,2) =[0.0369352517985632 0.830414333706607 0.0548561151079137 0.0313549832026876];
-% labPos(:,2,2) =[0.039633093525182 0.610929451287794 0.0548561151079137 0.0313549832026876];
-% labPos(:,3,2) =[0.0425467625899302 0.392721164613662 0.0548561151079137 0.0313549832026876];
-% % labPos(:,4,2) =[0.0436618705035993 0.178992161254199 0.0548561151079137 0.0313549832026876];
-%
-% for i = 1:N
-%     for j = 1:M
-%         annotation(gcf,'textbox',...
-%             labPos(:,i,j)',...
-%             'String',R.chloc_name{i},...
-%             'LineStyle','none');
-%     end
-% end
-%
-%

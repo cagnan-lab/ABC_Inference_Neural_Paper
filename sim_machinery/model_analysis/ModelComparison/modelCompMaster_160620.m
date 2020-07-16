@@ -32,10 +32,12 @@ for modID = modlist
         % Load Config
         load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\R_' R.out.tag '_' R.out.dag  '.mat'])
         
-        % Replace with new version but maintain paths
+        % Replace with new version but maintain paths and tags
         tmp = varo;
         tmp.path = R.path;
         tmp.plot = R.plot;
+        tmp.out = R.out;
+        tmp.analysis = R.analysis;
         R  = tmp;
         
         % Load Model
@@ -51,8 +53,6 @@ for modID = modlist
         % load parbank?
         load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\parBank_' R.out.tag '_' R.out.dag '.mat'])
         parBank =  varo;
-        R = setSimTime(R,32);
-
         
         R.analysis.modEvi.eps = parBank(end,R.SimAn.minRank);
         R.analysis.BAA.flag = 0; % Turn off BAA flag (time-locked analysis)
@@ -61,9 +61,6 @@ for modID = modlist
         if  size(parOptBank,2)>1
             R.parOptBank = parOptBank;
             R.obs.gainmeth = R.obs.gainmeth(1);
-            R.obs.trans.gauss = 0;
-            figure(modID);
-            R.analysis.modEvi.N = 512;
             permMod = modelProbs_160620(m.x,m,p,R);
         else
             permMod = [];
