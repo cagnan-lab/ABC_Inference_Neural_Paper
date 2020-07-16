@@ -60,9 +60,9 @@ for modID = 1:numel(R.modcomp.modN)
         hold on
         
         KL(modID) = sum(A.KL(~isnan(A.KL)));
-        DKL(modID) = sum(A.DKL);
+        DKL(modID) = A.DKL;
         pmod(modID) =sum(r2rep>R.modcomp.modEvi.epspop) / size(r2rep,2);
-        
+        ACC(modID) = median([A.ACCrep{~isnan(A.KL)}]);
         h = figure(10);
         R.plot.cmap = cmap(modID,:);
         flag = 0;
@@ -155,9 +155,8 @@ xlim([0.5 numel(R.modcomp.modN)+0.5])
 % xlabel('Model'); ylabel('Joint KL Divergence')
 
 subplot(4,1,4)
-TlnK = -log10(1-pmod)- log10((DKL./mean(DKL))); % Like a free energy
 for i = 1:numel(R.modcomp.modN)
-    b = bar(i,TlnK(i)); hold on
+    b = bar(i,ACC(i)); hold on
     b.FaceColor = cmap(i,:);
 end
 a = gca; a.XTick = 1:numel(R.modcomp.modN);
