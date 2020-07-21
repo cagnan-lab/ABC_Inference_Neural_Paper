@@ -25,12 +25,12 @@ p = 0; % plot counter
 mni = 0; % Model counter
 for modID = 1:numel(R.modcomp.modN)
     shortlab{modID} = sprintf('M%.f',R.modcomp.modN(modID)); % Make model label
-    
+
     % Load in the precompute model iterations
     R.out.dag = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
     load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
     permMod = varo; %i.e. permMod
-    
+
     load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\R_' R.out.tag '_' R.out.dag  '.mat'])
     tmp = varo;
     R.data = tmp.data;
@@ -45,12 +45,12 @@ for modID = 1:numel(R.modcomp.modN)
         DKL(modID) = permMod.DKL; % total joint space KL divergence
         MAP(modID) = permMod.MAP;
         ACC{modID} = permMod.ACCrep;
-        
+
         %% Plot Data Features with Bayesian confidence intervals
         h(1,1) = figure(10);
         h(2,1) = figure(20);
         flag = 0;
-        
+
         if ismember(modID,R.modcompplot.NPDsel)
             p = p +1;
             [hl(p), hp, dl, flag] = PlotFeatureConfInt_gen170620(R,permMod,h, cmap(modID,:));
@@ -116,9 +116,8 @@ xlim([0.5 numel(R.modcomp.modN)+0.5])
 % xlabel('Model'); ylabel('Joint KL Divergence')
 
 subplot(4,1,4)
-TlnK = -log10(1-pmod)- log10((DKL./mean(DKL))); % Like a free energy
 for i = 1:numel(R.modcomp.modN)
-    b = bar(i,TlnK(i)); hold on
+    b = bar(i,ACC(i)); hold on
     b.FaceColor = cmap(i,:);
 end
 a = gca; a.XTick = 1:numel(R.modcomp.modN);

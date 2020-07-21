@@ -11,13 +11,13 @@ switch getenv('computername')
         gitpath =  'C:\Users\timot\Documents\GitHub';
         madpath = 'Work\MATLAB ADDONS';
         spmpath = 'C:\Users\timot\Documents\GitHub\spm12';
-        R.path.datapath = 'D:\Data\Shenghong_Tremor';
+        R.path.datapath_shenghong = 'D:\Data\Shenghong_Tremor';
         
     case 'TIM_PC'
         gitpath = 'D:\GITHUB';
         madpath = 'D:\MATLAB ADDONS';
         spmpath = 'D:\GITHUB\spm12-master';
-        R.path.datapath = 'D:\Data\Shenghong_Tremor';
+        R.path.datapath_shenghong = 'D:\Data\Shenghong_Tremor';
     case 'DESKTOP-1QJTIMO'
         gitpath = 'C:\Users\Tim West\Documents\GitHub';
         madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
