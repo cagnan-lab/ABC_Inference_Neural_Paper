@@ -83,19 +83,16 @@ while ii <= R.SimAn.searchMax
             pnew = par{parl};
             %% Simulate New Data
             u = innovate_timeseries(R,m);
-            [r2,pnew,feat_sim,xsims,xsims_gl] = computeSimData_160620(R,m,u,pnew,0,0);
+            [r2,pnew,feat_sim] = computeSimData_160620(R,m,u,pnew,0,0);
             % Adjust the score to account for set complexity
             
-            [ACC R2w] = computeObjective(R,r2)
+            [ACC R2w] = computeObjective(R,r2);
             r2rep(jj) = R2w;
             ACCrep{jj} = ACC;
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;
             
-            if (ji==1) && (jj==1)
-                xsims_rep{jj} = xsims_gl;
-            end
             disp(['Iterate ' num2str(parl) ' temperature ' num2str(ii)])
         end % End of batch replicates
         
@@ -138,6 +135,13 @@ while ii <= R.SimAn.searchMax
         end
         
     end
+    
+    % Simulate best data (plotting outside of parfor)
+    pnew = par{Ilist(1)};
+    u = innovate_timeseries(R,m);
+   [~,~,~,~,xsims_gl_best] = computeSimData_160620(R,m,u,pnew,0,0);
+ 
+    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % PARAMETER OPTIMIZATION BEGINS HERE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -208,7 +212,7 @@ while ii <= R.SimAn.searchMax
     
     %% Compute Proposal Distribution
     if cflag == 1 && itry == 0 % estimate new copula
-        [Mfit,cflag] = postEstCopula(parOptBank,Mfit,pIndMap,pOrg);
+        [Mfit,cflag] = postEstCopulaW2(parOptBank,Mfit,pIndMap,pOrg);
         R.Mfit = Mfit;
         [KL DKL R] = KLDiv(R,p,m,1);
     elseif cflag == 0 % Draw from Normal Distribution
@@ -221,6 +225,7 @@ while ii <= R.SimAn.searchMax
             xs = parBank(pIndMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)));
         end
         W = ((s(end,:)-1).^-1);
+        W = W.^2;
         W = W./sum(W);
         Ws = repmat(W,size(xs,1),1); % added 03/2020 as below wasnt right dim (!)
         Mfit.Mu = wmean(xs,Ws,2);
@@ -259,8 +264,6 @@ while ii <= R.SimAn.searchMax
     if size(Ilist,2)>2 && R.plot.flag ==1
         if isfield(R.plot,'outFeatFx')
             %% Plot Data Features Outputs
-            figure(1)
-            clf
             fx = R.plot.outFeatFx;
             if size(Ilist,2)<12; xn = size(Ilist,2); else; xn = 12; end
             try
@@ -282,9 +285,10 @@ while ii <= R.SimAn.searchMax
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
-        figure(22)
-        plotTimeSeriesGen(xsims_rep{1},1./R.IntP.dt,R.chsim_name,R.condnames)
-        
+        try
+            figure(22)
+            plotTimeSeriesGen(xsims_gl_best,1./R.IntP.dt,R.chsim_name,R.condnames)
+        catch; end
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Export Plots
         %         if isequal(R.plot.save,'True')

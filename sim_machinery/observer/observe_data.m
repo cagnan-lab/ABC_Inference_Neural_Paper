@@ -114,6 +114,10 @@ for condsel = 1:numel(R.condnames)
                     a = 1;
                 end
 %                 pause(2)
+            case 'FANO'
+                
+                R.sim.fano(:,condsel) = computeFano(xsims,1/R.IntP.dt);
+
         end
     end
     xsims_c{condsel} = xsims;

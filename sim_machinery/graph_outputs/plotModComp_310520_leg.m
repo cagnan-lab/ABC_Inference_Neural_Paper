@@ -9,19 +9,17 @@ end
 for modID = 1:numel(R.modcomp.modN)
     R.out.dag = sprintf([R.out.tag '_M%.0f'],modID);
     load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
-    A = varo; %i.e. permMod
-    if ~isempty(A)
-        r2rep = [A.r2rep{:}];
-        r2rep(isnan(r2rep) | isinf(r2rep)) = [];
-        r2bank{modID} = r2rep;
+    permMod = varo; %i.e. permMod
+    if ~isempty(permMod)
+        ACCrep{modID} = permMod.ACCrep;
     end
 end
 
 % This gets the joint space epsilon that you can use to compute exceedence
 % probability
 prct = 50;
-r2bankcat = horzcat(r2bank{:});
-R.modcomp.modEvi.epspop = prctile(r2bankcat,prct); % threshold becomes median of model fits
+ACCbankcat = horzcat(ACCrep{:});
+R.modcomp.modEvi.epspop = prctile(ACCbankcat,prct); % threshold becomes median of model fits
 
 p = 0; % plot counter
 mni = 0; % Model counter
@@ -31,46 +29,38 @@ for modID = 1:numel(R.modcomp.modN)
     % Load in the precompute model iterations
     R.out.dag = sprintf([R.out.tag '_M%.0f'],R.modcomp.modN(modID));
     load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
-    A = varo; %i.e. permMod
+    permMod = varo; %i.e. permMod
     
-    if ~isempty(A)
+    load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\R_' R.out.tag '_' R.out.dag  '.mat'])
+    tmp = varo;
+    R.data = tmp.data;
+    if ~isempty(permMod)
         % save the model accuracies
-        r2rep = [A.r2rep{:}];
-        r2rep(isnan(r2rep) | isinf(r2rep)) = [];
-        r2repSave{modID} = r2rep;
+        ACCrep = permMod.ACCrep;
+
         % now get the exceedence probability
-        pmod(modID) =sum(r2rep>R.modcomp.modEvi.epspop) / size(r2rep,2);
+        pmod(modID) =sum(ACCrep>R.modcomp.modEvi.epspop) / size(ACCrep,2);
         % parameter divergences
-        KL(modID) = sum(A.KL(~isnan(A.KL))); % sum across all (marginal distributions)
-        DKL(modID) = sum(A.DKL); % total joint space KL divergence
-        
-        % Recover MAP parameters
-        list = find([A.r2rep{:}]);
-        if numel(list)>2
-            parcat = [];
-            for i = list
-                parcat(:,i) = spm_vec(A.par_rep{i});
-            end
-            parMean{modID} = spm_unvec(mean(parcat,2),A.par_rep{1});
-        else
-            parMean{modID} = A.par_rep{1};
-        end
+        KL(modID) = sum(permMod.KL(~isnan(permMod.KL))); % sum across all (marginal distributions)
+        DKL(modID) = permMod.DKL; % total joint space KL divergence
+        MAP(modID) = permMod.MAP;
+        ACC{modID} = permMod.ACCrep;
         
         %% Plot Data Features with Bayesian confidence intervals
-        h = figure(10);
-        R.plot.cmap = cmap(modID,:);
+        h(1,1) = figure(10);
+        h(2,1) = figure(20);
         flag = 0;
         
         if ismember(modID,R.modcompplot.NPDsel)
             p = p +1;
-            [hl(p), hp, dl, flag] = PlotFeatureConfInt_gen170620(R,A,h);
+            [hl(p), hp, dl, flag] = PlotFeatureConfInt_gen170620(R,permMod,h, cmap(modID,:));
         end
         % hl(modID) = plot(1,1);
         if ~flag
             mni = mni +1;
         end
     else
-        r2repSave{modID} = nan(size(r2rep));
+        r2repSave{modID} = nan(size(ACCrep));
     end
 end
 % Save the model parameter average

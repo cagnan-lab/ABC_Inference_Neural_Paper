@@ -13,7 +13,7 @@ O = numel(R.condnames);
 xcsd = nan(O,numel(R.siminds),numel(R.siminds),4,numel(R.frqz)); %initialize with empties
 for C = 1:O
     
-    switch R.data.datatype
+    switch R.data.datatype{1}
         case 'CSD'
             dataX = dataS{C}(datinds,:)';
             
@@ -21,7 +21,7 @@ for C = 1:O
             [csdMaster,fMaster] = cpsd(dataX,dataX,hanning(2^N),[],2^N,fsamp,'mimo');
             
         case 'NPD'
-            i = 0; 
+            i = 0;
             for chI = datinds
                 i = i + 1;
                 j = 0;
@@ -45,7 +45,7 @@ for C = 1:O
                 % Your Univariate Measure
                 Pxy = squeeze(csdMaster(:,j,i));
                 F_scale = fMaster;
-
+                
                 if R.obs.trans.logdetrend == 1
                     Pxy(Pxy<0) = 1e-32;
                     tailinds = (F_scale>68);
@@ -81,12 +81,12 @@ for C = 1:O
                     Pxy = interp1(F_scale,Pxy,R.frqz,R.obs.trans.interptype);
                 else
                     Pxy =  Pxy(F>4);
-                end               
+                end
                 
                 if R.obs.trans.zerobase == 1
                     Pxy = Pxy - min(Pxy);
-                end                
-                                
+                end
+                
             elseif i ~= j % Diagonal
                 % Your Functional Connectivity Metric
                 Pxy = squeeze(csdMaster(:,j,i));
@@ -112,7 +112,7 @@ for C = 1:O
                 else
                     Pxy =  Pxy(F>4);
                 end
-              
+                
             end
             xcsd(C,j,i,1:4,:) = repmat(Pxy,4,1);
         end
@@ -131,8 +131,21 @@ if R.obs.trans.normcat == 1
         end
     end
 end
+feat_out{1} = xcsd;
+F{1} = R.frqz;
+
+switch R.data.datatype{2}
+    case 'FANO'
+        dataX = dataS{C}(datinds,:)';
+        for i = 1:size(dataX,2)
+            X = bandpass(normalize(dataX(:,i))',[24 52],fsamp);
+            XH = abs(hilbert(X));
+            [nb(:,i),E(:,i)] = histcounts(XH,R.data.feat_xscale{2},'Normalization','pdf');
+        end
+end
+
+feat_out{2} = nb;
+F{2} = E;
 
 
-feat_out = xcsd;
-F = R.frqz;
 meanconf = [];

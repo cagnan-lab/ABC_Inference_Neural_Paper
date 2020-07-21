@@ -15,7 +15,7 @@ for cond = 1:numel(condname)
             hold on
         end
         if rep ==2
-            xlim([t(fix(0.5*numel(t))) t(fix(0.6*numel(t)))])
+            xlim([t(fix(0.5*numel(t))) t(fix(0.55*numel(t)))])
         end
         xlabel('Time (s)')
         ylabel('Normalized Amplitude')
