@@ -69,7 +69,7 @@ for FN = 1:numel(R.data.datatype)
                 set(gcf,'Position',[380         235        1112         893])
             end
             
-        case 'FANO'
+        case {'FANO','DUR'}
             fano_data = NPD_data{1}{FN};
             figure(C*10 + FN)
             clf

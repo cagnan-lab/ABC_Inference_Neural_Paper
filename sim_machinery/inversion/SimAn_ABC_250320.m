@@ -174,14 +174,15 @@ while ii <= R.SimAn.searchMax
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
         end
-    elseif itry < 1
-        fprintf('Trying for the %.0f\n time with the current eps \n',itry)
-        disp('Trying once more with current eps')
-        if isfield(Mfit,'Rho')
-            cflag = 1;
-        end
-        itry = itry + 1;
-    elseif itry >= 1
+%     elseif itry < 1
+%         fprintf('Trying for the %.0f\n time with the current eps \n',itry)
+%         disp('Trying once more with current eps')
+%         if isfield(Mfit,'Rho')
+%             cflag = 1;
+%         end
+%         itry = itry + 1;
+%     elseif itry >= 1
+    else
         disp('Recomputing eps from parbank')
         parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
         %         eps_act = min(parOptBank(end,:));
@@ -212,7 +213,7 @@ while ii <= R.SimAn.searchMax
     
     %% Compute Proposal Distribution
     if cflag == 1 && itry == 0 % estimate new copula
-        [Mfit,cflag] = postEstCopulaW2(parOptBank,Mfit,pIndMap,pOrg);
+        [Mfit,cflag] = postEstCopula(parOptBank,Mfit,pIndMap,pOrg);
         R.Mfit = Mfit;
         [KL DKL R] = KLDiv(R,p,m,1);
     elseif cflag == 0 % Draw from Normal Distribution
@@ -225,7 +226,7 @@ while ii <= R.SimAn.searchMax
             xs = parBank(pIndMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)));
         end
         W = ((s(end,:)-1).^-1);
-        W = W.^2;
+        W = W; %.^2;
         W = W./sum(W);
         Ws = repmat(W,size(xs,1),1); % added 03/2020 as below wasnt right dim (!)
         Mfit.Mu = wmean(xs,Ws,2);

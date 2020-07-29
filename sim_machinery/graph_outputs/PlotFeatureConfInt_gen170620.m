@@ -6,7 +6,15 @@ end
 for featN = 1:numel(R.data.datatype)
     switch R.data.datatype{featN}
         case {'CSD','NPD'}
-            CSD_data_n = permMod.feat_rep{1}{featN};
+            nanflag = 1; pl = 1;
+            while nanflag == 1
+                CSD_data_n = permMod.feat_rep{pl}{featN};
+                if any(isnan(CSD_data_n(:)))
+                    pl = pl + 1;
+                else
+                    nanflag = 0;
+                end
+            end
             list =find(~isinf(permMod.r2rep) & ~isnan(permMod.r2rep));
             C = size(CSD_data_n,1); N = size(CSD_data_n,2); M = size(CSD_data_n,3);O = size(CSD_data_n,4);
             for cond = 1:C
@@ -113,9 +121,9 @@ for featN = 1:numel(R.data.datatype)
                 flag = 0;
                 set(gcf,'Position',[680         112        1112         893])
             end
-        case 'FANO'
+        case {'FANO','DUR'}
             fanodata = permMod.feat_rep{1}{featN};
-            list =find(~isinf(permMod.r2rep) & ~isnan(permMod.r2rep));
+            list =find(~isinf(permMod.ACCrep) & ~isnan(permMod.ACCrep) & (permMod.ACCrep>prctile(permMod.ACCrep,75)));
             N = size(fanodata,2);
             fano_std = []; fanobank = [];
             for ii = 1:size(list,2)
@@ -135,9 +143,12 @@ for featN = 1:numel(R.data.datatype)
             [hl, hp] = boundedline(F(2:end),fanomean(:,1),squeeze(fano_std(:,1,:)),'cmap',cmap,'alpha','transparency',alpval);
             hl(1).LineWidth = 2; %hl(2).LineWidth = 1; %hl(3).LineWidth = 1;
             hl(1).LineStyle = '-';% hl(2).LineStyle = '--';% hl(3).LineStyle = '--';
-           
+            
             hold on
-                dl = plot(F(2:end),R.data.feat_emp{featN} ,'color',[0 0 0],'LineWidth',1.5); hold on
+            dl = plot(F(2:end),R.data.feat_emp{featN} ,'color',[0 0 0],'LineWidth',1.5); hold on
+            
+            xlabel('Burst Duration (ms)'); ylabel('p.d.');
+            grid on
     end
     
 end

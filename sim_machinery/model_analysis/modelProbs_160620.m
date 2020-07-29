@@ -2,6 +2,7 @@ function [permMod, xsimMod] = modelProbs_160620(x,m,p,R)
 if ~isfield(R.analysis.BAA,'flag')
     R.analysis.BAA.flag = 0;
 end
+R.plot.flag= 1;
 
 %% Compute KL Divergence
 [KL DKL] = KLDiv(R,p,m,1);
@@ -27,6 +28,8 @@ pnew = par{1};
 u = innovate_timeseries(R,m);
 [r2,pnew,feat_sim,xsims,xsims_gl,wflag] = computeSimData_160620(R,m,u,pnew,0,1);
 wfstr = ones(1,N);
+R.plot.flag= 0;
+
 while wfstr(end)>0
     parfor (jj = 1:N, parforArg)
         %     parfor jj = 1:N

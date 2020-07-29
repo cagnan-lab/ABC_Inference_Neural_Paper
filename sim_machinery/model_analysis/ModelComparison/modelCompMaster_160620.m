@@ -38,22 +38,31 @@ for modID = modlist
         tmp.plot = R.plot;
         tmp.out = R.out;
         tmp.analysis = R.analysis;
+        %% Corrections to file structure to make compatible
+        if ~iscell(tmp.data.feat_xscale)
+            X = tmp.data.feat_xscale;
+            tmp.data.feat_xscale = [];
+            tmp.data.feat_xscale{1} = X;
+        end
+        if ~iscell(tmp.data.feat_emp)
+            X = tmp.data.feat_emp;
+            tmp.data.feat_emp = [];
+            tmp.data.feat_emp{1} = X;
+        end        
+        if ~iscell(tmp.data.datatype)
+            X = tmp.data.datatype;
+            tmp.data.datatype = [];
+            tmp.data.datatype{1} = X;
+        end
+        
+        if ~isfield(tmp,'chdat_name')
+            tmp.chdat_name = tmp.chsim_name;
+        end
+        %%
         R  = tmp;
         
-        % Load Model
-        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modelspec_' R.out.tag '_'  R.out.dag '.mat'])
-        m = varo;
-        
-        % load modelfit
-        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modelfit_' R.out.tag '_' R.out.dag '.mat'])
-        mfit = varo;
-        R.Mfit = mfit;
-        p = mfit.BPfit;
-        
-        % load parbank?
-        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\parBank_' R.out.tag '_' R.out.dag '.mat'])
-        parBank =  varo;
-        
+        [~,m,p,parBank] = loadABCData_160620(R);
+
         R.analysis.modEvi.eps = parBank(end,R.SimAn.minRank);
         R.analysis.BAA.flag = 0; % Turn off BAA flag (time-locked analysis)
         parOptBank = parBank(1:end-1,parBank(end,:)>R.analysis.modEvi.eps);

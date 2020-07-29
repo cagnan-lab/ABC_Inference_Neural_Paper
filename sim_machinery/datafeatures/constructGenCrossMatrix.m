@@ -19,15 +19,19 @@ for C = 1:O
             
             % Compute the CrossSpectral Density for Everything
             [csdMaster,fMaster] = cpsd(dataX,dataX,hanning(2^N),[],2^N,fsamp,'mimo');
-            
+            if numel(size(csdMaster))<3
+                X = nan(size(csdMaster,1),2,2);
+                X(:,1,1) = csdMaster;
+                csdMaster = X;
+            end
         case 'NPD'
             i = 0;
-            for chI = datinds
+            for chI = 1:numel(datinds)
                 i = i + 1;
                 j = 0;
-                for chJ = datinds
+                for chJ = 1:numel(datinds)
                     j = j + 1;
-                    [f13,t,cl]=sp2a2_R2(squeeze(dataS{C}(chI,:))',squeeze(dataS{C}(chJ,:))',fsamp,N);
+                    [f13,t,cl]=sp2a2_R2(squeeze(dataS{C}(datinds(chI),:))',squeeze(dataS{C}(datinds(chI),:))',fsamp,N);
                     fMaster = f13(:,1);
                     if chI == chJ
                         csdMaster(:,j,i) = 10.^(f13(:,2));
@@ -39,8 +43,8 @@ for C = 1:O
             
     end
     
-    for i = datinds
-        for j = datinds
+    for i = 1:numel(datinds)
+        for j = 1:numel(datinds)
             if i == j
                 % Your Univariate Measure
                 Pxy = squeeze(csdMaster(:,j,i));
@@ -133,19 +137,35 @@ if R.obs.trans.normcat == 1
 end
 feat_out{1} = xcsd;
 F{1} = R.frqz;
-
+if numel(R.data.datatype)>1
 switch R.data.datatype{2}
     case 'FANO'
         dataX = dataS{C}(datinds,:)';
+        nb = []; E = [];
         for i = 1:size(dataX,2)
             X = bandpass(normalize(dataX(:,i))',[24 52],fsamp);
             XH = abs(hilbert(X));
             [nb(:,i),E(:,i)] = histcounts(XH,R.data.feat_xscale{2},'Normalization','pdf');
         end
+        
+    case 'DUR'
+        dataX = dataS{C}(datinds,:)';
+        nb = []; E = [];
+        for i = 1:size(dataX,2)
+            X = bandpass(dataX(:,i)',[30 40],fsamp);
+            XH = abs(hilbert(X));
+            burstinds = SplitVec(find(XH>prctile(XH,75)),'consecutive');
+            segL = 1000*(cellfun('length',burstinds)/fsamp);
+            [nb(:,i),E(:,i)] = histcounts(segL,R.data.feat_xscale{2},'Normalization','pdf');
+            nb = smooth(nb,4);
+%             [pd] = fitdist(segL','rayleigh')
+%             nb2 = raylpdf(R.data.feat_xscale{2},pd.B)
+            
+        end
 end
 
 feat_out{2} = nb;
 F{2} = E;
-
+end
 
 meanconf = [];
