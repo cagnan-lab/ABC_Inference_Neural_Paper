@@ -170,7 +170,8 @@ while ii <= R.SimAn.searchMax
         else % if the bank is very large than take subset
             disp('Bank is large taking new subset to form eps')
             parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
-            eps_act = median(parOptBank(end,:));
+%             eps_act = median(parOptBank(end,:));
+            eps_act = prctile(parOptBank(end,:),75);
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
         end
@@ -213,7 +214,7 @@ while ii <= R.SimAn.searchMax
     
     %% Compute Proposal Distribution
     if cflag == 1 && itry == 0 % estimate new copula
-        [Mfit,cflag] = postEstCopula(parOptBank,Mfit,pIndMap,pOrg);
+        [Mfit,cflag] = postEstCopulaW2(parOptBank,Mfit,pIndMap,pOrg);
         R.Mfit = Mfit;
         [KL DKL R] = KLDiv(R,p,m,1);
     elseif cflag == 0 % Draw from Normal Distribution
@@ -226,7 +227,7 @@ while ii <= R.SimAn.searchMax
             xs = parBank(pIndMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)));
         end
         W = ((s(end,:)-1).^-1);
-        W = W; %.^2;
+        W = W.^2;
         W = W./sum(W);
         Ws = repmat(W,size(xs,1),1); % added 03/2020 as below wasnt right dim (!)
         Mfit.Mu = wmean(xs,Ws,2);
