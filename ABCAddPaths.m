@@ -25,6 +25,18 @@ switch getenv('computername')
         R.path.datapath_shenghong = 'C:\DATA\Shenghong_Tremor';
         R.path.datapath_pedrosa = 'C:\DATA\DP_Tremor_ThalamoMuscular\';
         R.path.datapath = 'C:\Users\Tim West\OneDrive - Nexus365\Meaghan_project\Meaghan_stuff';
+    case 'DESKTOP-1QJTIMO'
+        gitpath = 'C:\Users\Tim West\Documents\GitHub';
+        madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
+        spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
+        R.path.datapath_shenghong = 'C:\DATA\Shenghong_Tremor';
+        R.path.datapath_pedrosa = 'C:\DATA\DP_Tremor_ThalamoMuscular\';
+        R.path.datapath = 'C:\Users\Tim West\OneDrive - Nexus365\Meaghan_project\Meaghan_stuff';
+    case 'DESKTOP-4VATHIO'
+        gitpath = 'D:\GITHUB';
+        spmpath = 'D:\GITHUB\spm12';
+        R.path.datapath_shenghong = 'D:\DATA\Shenghong_Tremor';
+        R.path.datapath_pedrosa = 'D:\DATA\DP_Tremor_ThalamoMuscular\';
 end
 R.path.root = [repopath];
 R.path.rootn = R.path.root; 
