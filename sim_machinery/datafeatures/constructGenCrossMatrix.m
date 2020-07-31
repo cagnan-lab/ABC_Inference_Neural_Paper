@@ -152,19 +152,11 @@ switch R.data.datatype{2}
         dataX = dataS{C}(datinds,:)';
         nb = []; E = [];
         for i = 1:size(dataX,2)
-            X = bandpass(dataX(:,i)',[30 40],fsamp);
-            XH = abs(hilbert(X));
-            burstinds = SplitVec(find(XH>prctile(XH,75)),'consecutive');
-            segL = 1000*(cellfun('length',burstinds)/fsamp);
-            [nb(:,i),E(:,i)] = histcounts(segL,R.data.feat_xscale{2},'Normalization','pdf');
-            nb = smooth(nb,4);
-%             [pd] = fitdist(segL','rayleigh')
-%             nb2 = raylpdf(R.data.feat_xscale{2},pd.B)
-            
+            [nb(:,i),nbs(:,i),E(:,i)] = burstDurHist(dataX(:,i)',[30 40],fsamp,R.data.feat_xscale{2});
         end
 end
 
-feat_out{2} = nb;
+feat_out{2} = nbs;
 F{2} = E;
 end
 

@@ -1,4 +1,4 @@
-function  [hl, hp, dl,flag] = PlotFeatureConfInt_gen170620(R,permMod,fighan,cmap)
+function  [hl, hp, dl,flag,CSD_mean] = PlotFeatureConfInt_gen170620(R,permMod,fighan,cmap)
 if ~isfield(R.plot,'confint')
     R.plot.confint = 1; % If not specified then dont plot confidence intervals
 end
