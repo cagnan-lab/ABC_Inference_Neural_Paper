@@ -19,7 +19,7 @@ for i = 1:length(plist)
                 x = reshape(X,1,[]);
                 
                 S = eval(['p' plist{i} '_s{Ai}']);
-                indS = reshape(S,1,[]);
+                xs = reshape(S,1,[]);
                 
                 xseq = rand(size(x));
                 eval(['p' plist{i} '{Ai} = xseq;']);
@@ -38,7 +38,7 @@ for i = 1:length(plist)
                 end
                 
                 % If variance is zero then do not modify
-                parSelInd = find(indS==0 | x<-30);
+                parSelInd = find(xs==0 | x<-30);
                 if set == 1
                     indK(parSelInd) = NaN;
                     x(parSelInd) = NaN;

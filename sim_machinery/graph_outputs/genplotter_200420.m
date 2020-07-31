@@ -69,11 +69,11 @@ for FN = 1:numel(R.data.datatype)
                 set(gcf,'Position',[380         235        1112         893])
             end
             
-        case 'FANO'
+        case {'FANO','DUR'}
             fano_data = NPD_data{1}{FN};
-            figure(C*10 + FN)
+            figure(1*10 + FN)
             clf
-            plot(F{FN}(2:end),fano_data,'r','linewidth',2); hold on
+            plot(F{2}(2:end),fano_data,'r','linewidth',2); hold on
 
             for L = 1:length(NPD_sim)
                 fano_sim = NPD_sim{L}{FN};

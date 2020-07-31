@@ -170,18 +170,20 @@ while ii <= R.SimAn.searchMax
         else % if the bank is very large than take subset
             disp('Bank is large taking new subset to form eps')
             parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
-            eps_act = median(parOptBank(end,:));
+%             eps_act = median(parOptBank(end,:));
+            eps_act = prctile(parOptBank(end,:),75);
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
         end
-    elseif itry < 1
-        fprintf('Trying for the %.0f\n time with the current eps \n',itry)
-        disp('Trying once more with current eps')
-        if isfield(Mfit,'Rho')
-            cflag = 1;
-        end
-        itry = itry + 1;
-    elseif itry >= 1
+%     elseif itry < 1
+%         fprintf('Trying for the %.0f\n time with the current eps \n',itry)
+%         disp('Trying once more with current eps')
+%         if isfield(Mfit,'Rho')
+%             cflag = 1;
+%         end
+%         itry = itry + 1;
+%     elseif itry >= 1
+    else
         disp('Recomputing eps from parbank')
         parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
         %         eps_act = min(parOptBank(end,:));

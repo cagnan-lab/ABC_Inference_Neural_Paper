@@ -131,9 +131,5 @@ for dt = 1:numel(R.data.datatype)
             fprintf('Fano error is: %0.3f  ',r2mean(dt))
     end
 end
-% Option to weight the respective features
-if isfield(R.objfx,'featweight')
-    r2mean = r2mean.*R.objfx.featweight;
-end
 r2mean = mean(r2mean(:)); %sum(r2mean);
 
