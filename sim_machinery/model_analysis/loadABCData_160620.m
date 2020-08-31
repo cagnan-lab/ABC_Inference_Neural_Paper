@@ -1,4 +1,4 @@
-function [Rout,m,p,parBank] = loadABCData_160620(R)
+function [Rout,m,p,parBank,permMod] = loadABCData_160620(R)
 % Load Options
 load([R.path.rootn '\outputs\' R.path.projectn '\' R.out.tag '\' R.out.dag '\R_' R.out.tag '_' R.out.dag '.mat'])
 Rout = varo;
@@ -23,5 +23,8 @@ if nargout>3
     load([R.path.rootn '\outputs\' R.path.projectn '\' R.out.tag '\' R.out.dag '\parBank_' R.out.tag '_' R.out.dag '.mat'])
     parBank =  varo;
 end
-
+if nargout>4
+        load([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag '\' R.out.dag '\modeProbs_' R.out.tag '_'  R.out.dag '.mat'])
+    permMod = varo; %i.e. permMod
+end
 

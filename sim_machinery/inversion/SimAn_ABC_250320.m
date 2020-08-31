@@ -50,7 +50,7 @@ delta_act = 0.05;
 pIndMap = spm_vec(pInd); % in flat form
 pMuMap = spm_vec(pMu);
 pSigMap = spm_vec(pSig);
-R.SimAn.minRank = ceil(size(pIndMap,1)*4); %Ensure rank of sample is large enough to compute copula
+R.SimAn.minRank = ceil(size(pIndMap,1)*2); %Ensure rank of sample is large enough to compute copula
 
 % set initial batch of parameters from gaussian priors
 if isfield(R,'Mfit')
@@ -73,11 +73,11 @@ while ii <= R.SimAn.searchMax
     %% Batch Loop for Replicates for Generation of Pseudodata
     % This is where the heavy work is done. This is run inside parfor. Any
     % optimization here is prime.
-    clear xsims_rep feat_sim_rep
+    clear xsims_rep feat_sim_rep featbank ACCbank
     ji = 0;
     parnum = (8*2);
     while ji < floor(rep/parnum)
-        parfor jj = 1:parnum % Replicates for each temperature
+       parfor jj = 1:parnum % Replicates for each temperature
             % Get sample Parameters
             parl = (ji*parnum) + jj;
             pnew = par{parl};
@@ -88,7 +88,7 @@ while ii <= R.SimAn.searchMax
             
             [ACC R2w] = computeObjective(R,r2);
             r2rep(jj) = R2w;
-            ACCrep{jj} = ACC;
+            ACCrep(jj) = ACC;
             par_rep{jj} = pnew;
             %         xsims_rep{jj} = xsims_gl; % This takes too much memory: !Modified to store last second only!
             feat_sim_rep{jj} = feat_sim;
@@ -98,7 +98,7 @@ while ii <= R.SimAn.searchMax
         
         % Retrieve fits
         
-        r2loop = [ACCrep{:}];
+        r2loop = ACCrep;
         % Delete failed simulations
         r2loop(r2loop==1) = -inf;
         r2loop(isnan(r2loop)==1) = -inf;
@@ -112,10 +112,11 @@ while ii <= R.SimAn.searchMax
                 parBank = [parBank parI(:,i) ];
             end
         end
-        [Ylist Ilist] = sort(r2loop,'descend');
-        bestr2(ii) = Ylist(1);
-        %     Ilist(isnan(r2loop(Ilist))) = []; % reconstruct Ilist without NaNs
         
+        % Save data features (for plotting reasons only)
+        featbank{ji+1} = feat_sim_rep;
+        ACCbank(:,ji+1) = ACCrep;
+        samppar{ji+1} = par_rep;
         % Clip parBank to the best (keeps size manageable
         if ~isempty(parBank)
             [dum V] = sort(parBank(end,:),'descend');
@@ -136,13 +137,22 @@ while ii <= R.SimAn.searchMax
         
     end
     
+    %% Find the best draws (for plotting only)
+    bestfeat = [];
+    [b i] = maxk(ACCbank(:),12);
+    [jj_best, ji_best] = ind2sub(size(ACCbank),i)
+    
     % Simulate best data (plotting outside of parfor)
-    pnew = par{Ilist(1)};
+    pnew = samppar{ji_best(1)}{jj_best(1)};
     u = innovate_timeseries(R,m);
    [~,~,~,~,xsims_gl_best] = computeSimData_160620(R,m,u,pnew,0,0);
  
-    
-    
+   for L = 1:numel(i)
+   bestfeat{L}{1} = featbank{ji_best(L)}{jj_best(L)}{1};
+   end
+   bestr2(ii) =  ACCbank(jj_best(1),ji_best(1))
+   
+   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % PARAMETER OPTIMIZATION BEGINS HERE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,34 +168,33 @@ while ii <= R.SimAn.searchMax
         B = eig(cov(A'));
         C = B/sum(B);
         eRank = sum(cumsum(C)>0.01);
-        R.SimAn.minRank = ceil(eRank*4);
+        R.SimAn.minRank = ceil(eRank*2);
         fprintf('effective rank of optbank is %.0f\n',eRank)
     end
     if size(parOptBank,2)> R.SimAn.minRank-1
-        if size(parOptBank,2) < 2*(R.SimAn.minRank-1)
+        if size(parOptBank,2) < (R.SimAn.minRank-1)
             disp('Bank satisfies current eps')
             eps_act = eps_exp;
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
         else % if the bank is very large than take subset
             disp('Bank is large taking new subset to form eps')
-            parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
+            parOptBank = parBank(:,intersect(1:R.SimAn.minRank,1:size(parBank,2)));
 %             eps_act = median(parOptBank(end,:));
             eps_act = prctile(parOptBank(end,:),75);
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
         end
-%     elseif itry < 1
-%         fprintf('Trying for the %.0f\n time with the current eps \n',itry)
-%         disp('Trying once more with current eps')
-%         if isfield(Mfit,'Rho')
-%             cflag = 1;
-%         end
-%         itry = itry + 1;
-%     elseif itry >= 1
-    else
+    elseif (itry < 1) || (size(parBank,2) < (R.SimAn.minRank-1))
+        fprintf('Trying for the %.0f\n time with the current eps \n',itry)
+        disp('Trying once more with current eps')
+        if isfield(Mfit,'Rho')
+            cflag = 1;
+        end
+        itry = itry + 1;
+    elseif itry >= 1
         disp('Recomputing eps from parbank')
-        parOptBank = parBank(:,intersect(1:2*R.SimAn.minRank,1:size(parBank,2)));
+        parOptBank = parBank(:,intersect(1:R.SimAn.minRank,1:size(parBank,2)));
         %         eps_act = min(parOptBank(end,:));
         eps_act = prctile(parOptBank(end,:),75);
         cflag = 1;
@@ -214,20 +223,20 @@ while ii <= R.SimAn.searchMax
     
     %% Compute Proposal Distribution
     if cflag == 1 && itry == 0 % estimate new copula
-        [Mfit,cflag] = postEstCopulaW2(parOptBank,Mfit,pIndMap,pOrg);
+        [Mfit,cflag] = postEstCopula(parOptBank,Mfit,pIndMap,pOrg);
         R.Mfit = Mfit;
         [KL DKL R] = KLDiv(R,p,m,1);
-    elseif cflag == 0 % Draw from Normal Distribution
+    elseif cflag == 0 && (size(parBank,2) >= (R.SimAn.minRank-1))% estimate mv Normal Distribution
         % Set Weights
         if size(parOptBank,2)>R.SimAn.minRank
             s = parOptBank(end,:);
             xs = parOptBank(pIndMap,:);
         else
-            s = parBank(end,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)));
-            xs = parBank(pIndMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)));
+            s = parBank(end,intersect(1:R.SimAn.minRank,1:size(parBank,2)));
+            xs = parBank(pIndMap,intersect(1:R.SimAn.minRank,1:size(parBank,2)));
         end
         W = ((s(end,:)-1).^-1);
-        W = W.^2;
+        W = W;%.^2;
         W = W./sum(W);
         Ws = repmat(W,size(xs,1),1); % added 03/2020 as below wasnt right dim (!)
         Mfit.Mu = wmean(xs,Ws,2);
@@ -236,12 +245,10 @@ while ii <= R.SimAn.searchMax
         
         %             Mfit.Mu = mean(parBank(pMuMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2))),2);
         %             Mfit.Sigma = cov(parBank(pMuMap,intersect(1:1.5*R.SimAn.minRank,1:size(parBank,2)))');
+        
         [KL DKL R] = KLDiv(R,p,m,0);
     end
-    
-    %% Compute Complexity Accounted Cost Function
-    
-    
+        
     %% Draw from Proposal Distribution
     if cflag == 1
         par = postDrawCopula(R,Mfit,pOrg,pIndMap,pSigMap,rep);
@@ -263,13 +270,12 @@ while ii <= R.SimAn.searchMax
     banksave{ii} = parBank(end,parBank(end,:)>eps_act);
     saveMkPath([R.path.rootn '\outputs\' R.path.projectn '\'  R.out.tag  '\' R.out.dag '\bankSave_' R.out.tag '_' R.out.dag '.mat'],banksave)
     %%%%%%%%%%%%%%% SAVE PROGRESS, PLOTTING ETC. %%%%%%%%%%%%%%%%%%%%%%%%%%
-    if size(Ilist,2)>2 && R.plot.flag ==1
+    if R.plot.flag ==1
         if isfield(R.plot,'outFeatFx')
             %% Plot Data Features Outputs
             fx = R.plot.outFeatFx;
-            if size(Ilist,2)<12; xn = size(Ilist,2); else; xn = 12; end
             try
-                fx({R.data.feat_emp},{feat_sim_rep{Ilist(1:xn)}},R.data.feat_xscale,R,1,[])
+                fx({R.data.feat_emp},bestfeat,R.data.feat_xscale,R,1,[])
                 %                 fx(R,{R.data.feat_emp},{feat_sim_rep{Ilist(1:xn)}},Ilist(1))
                 drawnow; shg
             end
@@ -283,7 +289,7 @@ while ii <= R.SimAn.searchMax
         end
         
         figure(2);  clf
-        optProgPlot(1:ii,r2loop(Ilist(1)),pmean,banksave,eps_rec,bestr2,pInd,pSig,R,kldHist,r2Hist)
+        optProgPlot(1:ii,bestr2,pmean,banksave,eps_rec,bestr2,pInd,pSig,R,kldHist,r2Hist)
         drawnow;shg
         %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
         %% Plot example time series
@@ -297,7 +303,7 @@ while ii <= R.SimAn.searchMax
         %             saveSimAnFigures(R,ii)
         %         end
     end
-    disp({['Current R2: ' num2str(r2loop(Ilist(1)))];[' Temperature ' num2str(ii) ' K']; R.out.tag; ['Eps ' num2str(eps)]})
+    disp({['Current R2: ' num2str(bestr2)];[' Temperature ' num2str(ii) ' K']; R.out.tag; ['Eps ' num2str(eps)]})
     %%%     %%%     %%%     %%%     %%%     %%%     %%%     %%%
     %% Save data
     if rem(ii,10) == 0 || ii == 1
@@ -307,14 +313,14 @@ while ii <= R.SimAn.searchMax
         end
     end
     
-    try
-        RFLAG = (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1);
-    catch
-        RFLAG = 0;
-    end
+%     try
+%         RFLAG = (numel(unique(eps_rec(end-R.SimAn.convIt.eqN:end))) == 1);
+%     catch
+%         RFLAG = 0;
+%     end
+%     
     
-    
-    if (abs(delta_act) < R.SimAn.convIt.dEps) || RFLAG
+    if (abs(delta_act) < R.SimAn.convIt.dEps); % || RFLAG
         disp('Itry Exceeded: Convergence')
         saveSimABCOutputs(R,Mfit,m,parBank)
         if R.plot.flag == 1
