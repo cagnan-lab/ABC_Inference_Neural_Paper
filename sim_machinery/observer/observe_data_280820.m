@@ -2,7 +2,14 @@ function [xsims_c R wflag] = observe_data_280820(xstore,m,p,R)
     wflag = 0;
 
 for condsel = 1:numel(R.condnames)
-    xsims = xstore{condsel}(R.obs.outstates,:);
+    
+    % This does within source mixing
+    for i = 1:m.m
+        X = xstore{condsel}(m.xinds(i,1):m.xinds(i,2),:).*exp(p.int{i}.outstates)';
+        xsims(i,:) =sum(X,1);
+    end
+
+
     % Delete burnin
     if size(xsims,2) > 5*round(R.obs.brn*(1/R.IntP.dt))
         xsims(:,1:round(R.obs.brn*(1/R.IntP.dt))) = [];

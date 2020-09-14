@@ -1,4 +1,9 @@
 function r2mean = compareData_100717(R,sim_dat)
+if isfield(R.objfx,'bandlim') && ~isempty(R.objfx.bandlim)
+    fi_ind = find(R.frqz>=R.objfx.bandlim(1) & R.frqz<=R.objfx.bandlim(2));
+else
+    fi_ind = 1:numel(R.frqz);
+end
 switch R.data.datatype
     %% CSD
     case 'CSD'
@@ -96,8 +101,8 @@ switch R.data.datatype
                     switch R.objfx.feattype
                         case 'ForRev'
                             if i==j
-                                yfx = (squeeze(NPDsim(C,i,j,1,:)));
-                                ffx = (squeeze(NPDemp(C,i,j,1,:)));
+                                yfx = (squeeze(NPDsim(C,i,j,1,fi_ind)));
+                                ffx = (squeeze(NPDemp(C,i,j,1,fi_ind)));
                                 ffx(isnan(yfx)) = [];yfx(isnan(yfx)) = [];
                                 yfx(isnan(ffx)) = [];ffx(isnan(ffx)) = [];
                                 
@@ -112,8 +117,8 @@ switch R.data.datatype
                                 r2loop(C,i,j) = r(2);
                             elseif j>i
                                 for k = 2:3 % 1 is zerolag
-                                    yfx = (squeeze(NPDsim(C,i,j,k,:)));
-                                    ffx = (squeeze(NPDemp(C,i,j,k,:)));
+                                    yfx = (squeeze(NPDsim(C,i,j,k,fi_ind)));
+                                    ffx = (squeeze(NPDemp(C,i,j,k,fi_ind)));
                                     
                                     if size(yfx,1)>size(yfx,2);yfx = yfx'; end
                                     if size(ffx,1)>size(ffx,2);ffx = ffx'; end
@@ -156,7 +161,8 @@ switch R.data.datatype
             case 'cross_only'
                 for C = 1:numel(R.condnames)
                     r2C = squeeze(r2loop(C,:,:));
-                    r2mean(C) = nanmedian(r2C(logical(~eye(j).*(triu(r2C)~=0))));
+%                     r2mean(C) = nanmedian(r2C(logical(~eye(j).*(triu(r2C)~=0))));
+                    r2mean(C) = nanmedian(r2C(logical(~eye(j))));
                 end
                 r2mean = median(r2mean);
         end

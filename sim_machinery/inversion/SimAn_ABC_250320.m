@@ -140,7 +140,7 @@ while ii <= R.SimAn.searchMax
     %% Find the best draws (for plotting only)
     bestfeat = [];
     [b i] = maxk(ACCbank(:),12);
-    [jj_best, ji_best] = ind2sub(size(ACCbank),i)
+    [jj_best, ji_best] = ind2sub(size(ACCbank),i);
     
     % Simulate best data (plotting outside of parfor)
     pnew = samppar{ji_best(1)}{jj_best(1)};
@@ -172,12 +172,12 @@ while ii <= R.SimAn.searchMax
         fprintf('effective rank of optbank is %.0f\n',eRank)
     end
     if size(parOptBank,2)> R.SimAn.minRank-1
-        if size(parOptBank,2) < (R.SimAn.minRank-1)
+        if size(parOptBank,2) < (2*R.SimAn.minRank-1)
             disp('Bank satisfies current eps')
             eps_act = eps_exp;
             cflag = 1; % copula flag (enough samples)
             itry = 0;  % set counter to 0
-        else % if the bank is very large than take subset
+        elseif  size(parOptBank,2) >= (2*R.SimAn.minRank-1)% if the bank is very large than take subset
             disp('Bank is large taking new subset to form eps')
             parOptBank = parBank(:,intersect(1:R.SimAn.minRank,1:size(parBank,2)));
 %             eps_act = median(parOptBank(end,:));
@@ -211,11 +211,11 @@ while ii <= R.SimAn.searchMax
     if itry==0
         % Compute expected gradient for next run
         delta_exp = eps_exp-eps_prior;
-        fprintf('Expected gradient was %0.2f \n',delta_exp)
+        fprintf('Expected gradient was %0.3f \n',delta_exp)
         delta_act = eps_act-eps_prior;
-        fprintf('Actual gradient was %0.2f \n',delta_act)
+        fprintf('Actual gradient was %0.3f \n',delta_act)
         eps_exp = eps_act + delta_act;
-        fprintf('Exp-Act gradient was %0.2f \n',delta_exp-delta_act)
+        fprintf('Error in gradient was %0.3f \n',delta_exp-delta_act)
         % Save eps history and make actual eps new prior eps
         eps_prior = eps_act;
     end

@@ -22,7 +22,7 @@ for i = 1:rep
 end
 
 % Set up MAP estimate
-base = spm_vec(pOrg);
+MAP = spm_vec(pOrg);
 MAP(pIndMap,1) = mapq;
 MAP(pSigMap,1) = diag(Mfit.Sigma);
 MAP = spm_unvec(MAP,pOrg);
