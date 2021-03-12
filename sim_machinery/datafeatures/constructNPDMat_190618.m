@@ -70,7 +70,7 @@ for C = 1:O
                         end
                         %                     [nf13,~,~]=sp2a2_R2(normnoise(1,:)',normnoise(2,:)',fsamp,N-1);
                         F = f13(:,1);
-                        zl = [10 11 12 8];
+                        zl = [10 11 12 8]; % zero; forward; reverse; coherence
                         for z = 1:4
                             %                     [Pxy,F] = cpsd(data(chindsP(p),:),data(chindsR(r),:),hanning(N),[],N,fsamp);
                             Pxy = f13(:,zl(z));

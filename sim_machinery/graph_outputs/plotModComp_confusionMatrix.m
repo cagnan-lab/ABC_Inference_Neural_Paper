@@ -1,4 +1,4 @@
-function plotModComp_310520(R,cmap)
+function plotModComp_confusionMatrix(R,cmap,dagname)
 % R.plot.confint = 'none';
 if nargin<2
     cmap = brewermap(R.modcomp.modN,'Spectral');
